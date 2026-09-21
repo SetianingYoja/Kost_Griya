@@ -18,7 +18,7 @@ class LaporanController extends Controller
         $bulan = $request->query('bulan', date('m'));
         $tahun = $request->query('tahun', date('Y'));
 
-        // 1. Keuangan / Pendapatan
+        // Keuangan / Pendapatan
         $pembayarans = Pembayaran::with(['user', 'booking.kamar', 'tagihan'])
             ->where('status', 'Lunas')
             ->whereMonth('tanggal_bayar', $bulan)
@@ -28,14 +28,14 @@ class LaporanController extends Controller
 
         $totalPendapatan = $pembayarans->sum('nominal');
 
-        // 2. Okupansi
+        // Okupansi
         $totalKamar = Kamar::count();
         $kamarTerisi = Kamar::where('status', 'Terisi')->count();
         $kamarTersedia = Kamar::where('status', 'Tersedia')->count();
         $kamarTidakTersedia = Kamar::where('status', 'Tidak tersedia')->count();
         $okupansiPersen = $totalKamar > 0 ? round(($kamarTerisi / $totalKamar) * 100, 1) : 0;
 
-        // 3. Keluhan & Kepuasan
+        // Keluhan & Kepuasan
         $totalKeluhanBulanIni = Keluhan::whereMonth('created_at', $bulan)->whereYear('created_at', $tahun)->count();
         $keluhanSelesaiBulanIni = Keluhan::whereMonth('created_at', $bulan)->whereYear('created_at', $tahun)->where('status', 'Selesai')->count();
         $avgRatingKost = Rating::where('jenis_rating', 'Kost')->avg('skor') ?? 5.0;

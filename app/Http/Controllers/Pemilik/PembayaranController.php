@@ -67,7 +67,7 @@ class PembayaranController extends Controller
             $pembayaran->catatan_pemilik = $request->input('catatan_pemilik', 'Pembayaran telah divalidasi dan diterima.');
             $pembayaran->save();
 
-            // 1. Alur Pembayaran Booking Awal
+            // ALUR PEMBAYARAN BOOKING AWAL
             if ($pembayaran->jenis_pembayaran === 'Booking Awal' && $pembayaran->booking_id) {
                 $booking = Booking::with('kamar')->find($pembayaran->booking_id);
 
@@ -122,7 +122,7 @@ class PembayaranController extends Controller
                 }
             }
 
-            // 2. Alur Pembayaran Tagihan Bulanan
+            // ALUR PEMBAYARAN TAGIHAN BULANAN
             if ($pembayaran->jenis_pembayaran === 'Tagihan Bulanan' && $pembayaran->tagihan_id) {
                 $tagihan = Tagihan::find($pembayaran->tagihan_id);
                 if ($tagihan) {
@@ -138,7 +138,7 @@ class PembayaranController extends Controller
                 }
             }
 
-            // 3. Alur Pembayaran DP Perpanjangan (Model B)
+            // ALUR PEMBAYARAN PERPANJANG SEWA (dp)
             if ($pembayaran->jenis_pembayaran === 'DP Perpanjangan' && $pembayaran->perpanjangan_id) {
                 $perpanjangan = Perpanjangan::with('sewa')->find($pembayaran->perpanjangan_id);
                 if ($perpanjangan) {
@@ -152,8 +152,8 @@ class PembayaranController extends Controller
                         $sewa->status = 'Aktif';
                         $sewa->save();
 
-                        // Buat tagihan bulanan berjalan dengan alokasi DP terpotong agar tidak double charge
-                        // Misal total kewajiban dikurangi nominal DP yang sudah dibayar
+                        // tagihan bulanan berjalan dengan alokasi DP terpotong agar tidak double charge
+                        // total kewajiban dikurangi nominal DP yang sudah dibayar
                         $sisaKewajiban = $perpanjangan->nominal_total - $perpanjangan->nominal_dp;
                         $nominalPerBulan = $perpanjangan->durasi_bulan > 0 ? ($sisaKewajiban / $perpanjangan->durasi_bulan) : 0;
 

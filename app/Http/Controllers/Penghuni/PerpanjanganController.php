@@ -37,7 +37,14 @@ class PerpanjanganController extends Controller
             ->latest()
             ->first();
 
-        return view('penghuni.perpanjangan.index', compact('perpanjangans', 'activeSewa', 'fromDate', 'toDate'));
+        $pendingPerpanjangan = $activeSewa
+            ? Perpanjangan::where('sewa_id', $activeSewa->id)
+                ->whereIn('status', ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran DP'])
+                ->latest()
+                ->first()
+            : null;
+
+        return view('penghuni.perpanjangan.index', compact('perpanjangans', 'activeSewa', 'pendingPerpanjangan', 'fromDate', 'toDate'));
     }
 
     public function create()

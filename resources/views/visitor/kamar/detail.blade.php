@@ -163,7 +163,7 @@
             <div class="card-griya overflow-hidden mb-4">
                 <div class="room-img-wrapper" style="height: 420px;">
                     <button type="button" class="gallery-lightbox-trigger" data-index="0" data-image="{{ $kamar->foto_url }}" data-caption="{{ $kamar->nomor_kamar }}" aria-label="Lihat foto utama kamar">
-                        <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}" class="w-100 h-100 object-fit-cover" style="display: block;">
+                        <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}" class="w-100 h-100 object-fit-contain" style="display: block; object-fit: contain;">
                     </button>
                     <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}" style="top: 20px; right: 20px; font-size: 0.9rem; padding: 0.5rem 1rem;">
                         @if($kamar->status === 'Tersedia')
@@ -437,7 +437,7 @@
 
                 <div class="text-center">
                     <p class="small text-muted mb-2">Ingin bertanya atau survei langsung?</p>
-                    <a href="https://wa.me/6281234567890?text=Halo%20Kost%20Griya%20Ayu,%20saya%20tertarik%20dengan%20{{ urlencode($kamar->nomor_kamar) }}" target="_blank" class="btn btn-success w-100">
+                    <a href="https://wa.me/6282242645466?text=Halo%20Kost%20Griya%20Ayu,%20saya%20tertarik%20dengan%20{{ urlencode($kamar->nomor_kamar) }}" target="_blank" class="btn btn-success w-100">
                         <i class="bi bi-whatsapp me-2"></i> Chat WhatsApp Pemilik
                     </a>
                 </div>

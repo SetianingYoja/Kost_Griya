@@ -1,11 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.dashboard')
 
 @section('title', 'Profil Pengguna — Kost Putri Griya Ayu')
 
 @section('content')
 <div class="container py-5">
     <div class="row g-4 justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-12">
             <div class="card-griya p-4 p-md-5 mb-4">
                 <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
                     <div class="stat-icon bg-primary text-white" style="width: 54px; height: 54px;">
@@ -28,9 +28,9 @@
                             <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-semibold text-secondary">Alamat Email (Akun)</label>
-                            <input type="email" class="form-control bg-light" value="{{ $user->email }}" disabled>
-                            <small class="text-muted">Email tidak dapat diubah secara langsung demi keamanan.</small>
+                            <label class="form-label small fw-semibold text-secondary">Alamat Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+                            <small class="text-muted">Email dapat diperbarui selama menggunakan format yang valid dan belum digunakan akun lain.</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold text-secondary">Nomor WhatsApp</label>
@@ -75,25 +75,6 @@
             </div>
         </div>
 
-        <!-- Riwayat Aktivitas Akun -->
-        <div class="col-lg-4">
-            <div class="card-griya p-4">
-                <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-clock-history me-2 text-primary"></i>Aktivitas Terakhir</h5>
-                <div class="list-group list-group-flush small">
-                    @forelse($riwayats as $riwayat)
-                        <div class="list-group-item px-0 py-2 border-0 border-bottom">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong class="text-secondary">{{ $riwayat->judul }}</strong>
-                                <span class="badge bg-light text-muted">{{ $riwayat->created_at->diffForHumans() }}</span>
-                            </div>
-                            <p class="text-muted mb-0 small">{{ $riwayat->deskripsi }}</p>
-                        </div>
-                    @empty
-                        <p class="text-muted small mb-0">Belum ada riwayat aktivitas yang tercatat.</p>
-                    @endforelse
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

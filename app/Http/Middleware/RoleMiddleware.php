@@ -30,7 +30,7 @@ class RoleMiddleware
             return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan. Silakan hubungi pengelola.');
         }
 
-        // Super Admin has universal access
+        // super Admin tidak memiliki batasan akses berdasarkan role
         if ($user->isSuperAdmin()) {
             return $next($request);
         }

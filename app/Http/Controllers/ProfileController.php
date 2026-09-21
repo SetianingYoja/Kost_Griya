@@ -7,15 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
     public function show()
     {
         $user = Auth::user();
-        $riwayats = RiwayatAktivitas::where('user_id', $user->id)->latest()->take(10)->get();
 
-        return view('profile', compact('user', 'riwayats'));
+        return view('profile', compact('user'));
     }
 
     public function update(Request $request)
@@ -24,6 +24,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['required', 'string', 'max:25'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
@@ -34,6 +35,7 @@ class ProfileController extends Controller
         }
 
         $user->name = $validated['name'];
+        $user->email = $validated['email'];
         $user->phone = $validated['phone'];
         $user->save();
 

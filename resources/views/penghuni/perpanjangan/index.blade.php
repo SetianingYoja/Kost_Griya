@@ -8,11 +8,6 @@
         <h3 class="fw-bold text-secondary mb-1">Perpanjangan Masa Sewa (Model B)</h3>
         <p class="text-muted small mb-0">Ajukan perpanjangan kontrak sewa Anda dengan skema pembayaran DP</p>
     </div>
-    @if($activeSewa)
-        <a href="{{ route('penghuni.perpanjangan.create') }}" class="btn btn-primary-griya btn-sm">
-            <i class="bi bi-plus-circle me-1"></i> Ajukan Perpanjangan Baru
-        </a>
-    @endif
 </div>
 
 <!-- Info Sewa Aktif Saat Ini -->
@@ -27,9 +22,15 @@
                 </p>
             </div>
             <div>
-                <a href="{{ route('penghuni.perpanjangan.create') }}" class="btn btn-primary-griya">
-                    <i class="bi bi-arrow-repeat me-1"></i> Perpanjang Sewa Sekarang
-                </a>
+                @if($pendingPerpanjangan)
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        <i class="bi bi-hourglass-split me-1"></i> Pengajuan Sedang Diproses
+                    </span>
+                @else
+                    <a href="{{ route('penghuni.perpanjangan.create') }}" class="btn btn-primary-griya">
+                        <i class="bi bi-arrow-repeat me-1"></i> Perpanjang Sewa Sekarang
+                    </a>
+                @endif
             </div>
         </div>
     </div>

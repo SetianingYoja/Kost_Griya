@@ -84,7 +84,7 @@ class AuthController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',
         ]);
 
-        // Default role is always Penghuni for public registration
+        // mendaftar melalui halaman registrasi umum akan otomatis diberi role Penghuni,
         $penghuniRole = Role::where('slug', 'penghuni')->first();
 
         $user = User::create([

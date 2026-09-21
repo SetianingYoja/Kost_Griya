@@ -15,7 +15,7 @@
             <i class="bi bi-door-open me-1"></i> Kontrak Sewa ({{ $sewas->count() }})
         </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item"> 
         <a class="nav-link {{ $tab === 'booking' ? 'active bg-primary' : 'bg-white border text-secondary' }}" href="{{ route('penghuni.riwayat.index', ['tab' => 'booking']) }}">
             <i class="bi bi-calendar-check me-1"></i> Booking ({{ $bookings->count() }})
         </a>

@@ -61,16 +61,6 @@
                         <a href="{{ route('register') }}" class="text-primary fw-semibold text-decoration-none">Daftar di sini</a>
                     </p>
                 </div>
-
-                <!-- Info Akun Demo untuk Pengujian -->
-                <div class="mt-4 p-3 rounded-3 bg-light border text-start">
-                    <div class="small fw-bold text-secondary mb-2"><i class="bi bi-info-circle me-1"></i> Akun Uji Coba (Demo):</div>
-                    <ul class="list-unstyled mb-0" style="font-size: 0.8rem;">
-                        <li><strong>Super Admin:</strong> <code>superadmin@griyaayu.com</code> | <code>password123</code></li>
-                        <li><strong>Pemilik Kost:</strong> <code>pemilik@griyaayu.com</code> | <code>password123</code></li>
-                        <li><strong>Penghuni:</strong> <code>penghuni@griyaayu.com</code> | <code>password123</code></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>

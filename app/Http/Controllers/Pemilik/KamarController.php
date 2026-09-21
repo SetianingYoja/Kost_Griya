@@ -165,7 +165,7 @@ class KamarController extends Controller
     {
         $kamar = Kamar::findOrFail($id);
 
-        // Jangan hapus jika ada sewa aktif
+        // Jangan dihapus jika ada sewa aktif
         if ($kamar->sewas()->where('status', 'Aktif')->exists()) {
             return back()->with('error', 'Kamar tidak dapat dihapus karena masih dihuni oleh penyewa aktif.');
         }

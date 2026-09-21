@@ -1,9 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Kost Putri Griya Ayu — Modern Elegant Boarding House')
-
 @section('content')
-<!-- Hero Section -->
+
 <section class="hero-section">
     <div class="container">
         <div class="row align-items-center g-5">
@@ -58,6 +56,69 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- Kamar Unggulan Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+            <div>
+                <span class="badge-tagline mb-2">Koleksi Kamar</span>
+                <h2 class="display-6 fw-bold text-secondary mb-1">Pilihan Kamar Kost Terbaik</h2>
+                <p class="text-muted mb-0">Temukan tipe kamar yang paling sesuai dengan preferensi dan kebutuhan Anda</p>
+            </div>
+            <div class="mt-3 mt-md-0">
+                <a href="{{ route('kamar.index') }}" class="btn btn-outline-griya">
+                    Lihat Semua Kamar ({{ $totalKamar }}) <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @forelse($kamarUnggulan as $kamar)
+                <div class="col-lg-4 col-md-6">
+                    <div class="card-griya h-100 d-flex flex-column">
+                        <div class="room-img-wrapper">
+                            <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}">
+                            <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
+                                @if($kamar->status === 'Tersedia')
+                                    <i class="bi bi-check-circle-fill me-1"></i> Tersedia
+                                @elseif($kamar->status === 'Terisi')
+                                    <i class="bi bi-x-circle-fill me-1"></i> Terisi
+                                @else
+                                    <i class="bi bi-slash-circle me-1"></i> Tidak Tersedia
+                                @endif
+                            </span>
+                        </div>
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge bg-light text-primary border fw-semibold">{{ $kamar->tipeKamar->nama_tipe ?? 'Standar' }}</span>
+                                <span class="small text-muted"><i class="bi bi-layers me-1"></i>Lantai {{ $kamar->lantai }}</span>
+                            </div>
+                            <h4 class="fw-bold text-secondary mb-2">{{ $kamar->nomor_kamar }}</h4>
+                            <p class="text-muted small mb-3 flex-grow-1">
+                                {{ Str::limit($kamar->fasilitas ?? $kamar->deskripsi, 85) }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                <div>
+                                    <span class="small text-muted d-block">Mulai dari</span>
+                                    <span class="price-tag">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</span>
+                                    <span class="small text-muted">/bln</span>
+                                </div>
+                                <a href="{{ route('kamar.detail', $kamar->id) }}" class="btn btn-sm btn-primary-griya px-3">
+                                    Detail Kamar <i class="bi bi-chevron-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Data kamar belum tersedia.</p>
+                </div>
+            @endforelse
         </div>
     </div>
 </section>
@@ -179,69 +240,6 @@
     </div>
 </section>
 
-<!-- Kamar Unggulan Section -->
-<section class="py-5 bg-light">
-    <div class="container py-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
-            <div>
-                <span class="badge-tagline mb-2">Koleksi Kamar</span>
-                <h2 class="display-6 fw-bold text-secondary mb-1">Pilihan Kamar Kost Terbaik</h2>
-                <p class="text-muted mb-0">Temukan tipe kamar yang paling sesuai dengan preferensi dan kebutuhan Anda</p>
-            </div>
-            <div class="mt-3 mt-md-0">
-                <a href="{{ route('kamar.index') }}" class="btn btn-outline-griya">
-                    Lihat Semua Kamar ({{ $totalKamar }}) <i class="bi bi-arrow-right ms-1"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            @forelse($kamarUnggulan as $kamar)
-                <div class="col-lg-4 col-md-6">
-                    <div class="card-griya h-100 d-flex flex-column">
-                        <div class="room-img-wrapper">
-                            <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}">
-                            <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
-                                @if($kamar->status === 'Tersedia')
-                                    <i class="bi bi-check-circle-fill me-1"></i> Tersedia
-                                @elseif($kamar->status === 'Terisi')
-                                    <i class="bi bi-x-circle-fill me-1"></i> Terisi
-                                @else
-                                    <i class="bi bi-slash-circle me-1"></i> Tidak Tersedia
-                                @endif
-                            </span>
-                        </div>
-                        <div class="p-4 d-flex flex-column flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="badge bg-light text-primary border fw-semibold">{{ $kamar->tipeKamar->nama_tipe ?? 'Standar' }}</span>
-                                <span class="small text-muted"><i class="bi bi-layers me-1"></i>Lantai {{ $kamar->lantai }}</span>
-                            </div>
-                            <h4 class="fw-bold text-secondary mb-2">{{ $kamar->nomor_kamar }}</h4>
-                            <p class="text-muted small mb-3 flex-grow-1">
-                                {{ Str::limit($kamar->fasilitas ?? $kamar->deskripsi, 85) }}
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
-                                <div>
-                                    <span class="small text-muted d-block">Mulai dari</span>
-                                    <span class="price-tag">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</span>
-                                    <span class="small text-muted">/bln</span>
-                                </div>
-                                <a href="{{ route('kamar.detail', $kamar->id) }}" class="btn btn-sm btn-primary-griya px-3">
-                                    Detail Kamar <i class="bi bi-chevron-right ms-1"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="col-12 text-center py-5">
-                    <p class="text-muted">Data kamar belum tersedia.</p>
-                </div>
-            @endforelse
-        </div>
-    </div>
-</section>
-
 <!-- Lokasi & Kontak Section -->
 <section class="py-5 bg-white border-top">
     <div class="container py-4">
@@ -250,7 +248,7 @@
                 <span class="badge-tagline mb-2">Lokasi & Kontak</span>
                 <h2 class="display-6 fw-bold text-secondary mb-3">Kunjungi Kami di Purwokerto, Banyumas</h2>
             <p class="text-muted mb-4">
-                Berlokasi strategis di kawasan Purwokerto, Kost Putri Griya Ayu berada dekat dengan Universitas AMIKOM Purwokerto dan UIN Prof. K.H. Saifuddin Zuhri (UIN SAIZU) Purwokerto. Lokasi yang mudah dijangkau menjadikannya pilihan hunian yang nyaman dan praktis bagi mahasiswi.
+                Kost Putri Griya Ayu berlokasi strategis di kawasan Purwokerto, dekat dengan Universitas Amikom Purwokerto, UIN SAIZU, Universitas Jenderal Soedirman (Unsoed), dan Polresta Banyumas. Hanya sekitar 10 menit menuju Stasiun Purwokerto, sehingga memudahkan mobilitas penghuni untuk kuliah, bekerja, maupun bepergian.
             </p>
 
                 <div class="d-flex flex-column gap-3 mb-4">
