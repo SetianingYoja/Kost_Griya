@@ -15,7 +15,7 @@
 </head>
 <body class="bg-light">
     <!-- Dashboard Top Header -->
-    <header class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-2 px-3 px-md-4 shadow-sm" style="z-index: 1020;">
+    <header class="navbar navbar-expand-lg bg-amber-400 border-bottom sticky-top py-2 px-3 px-md-4 shadow-sm" style="z-index: 1020;">
         <div class="d-flex align-items-center gap-3">
             <button class="btn btn-sm btn-light border d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar">
                 <i class="bi bi-list fs-5"></i>

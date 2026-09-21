@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-    --brand-primary: #2563EB;
-    --brand-primary-hover: #1D4ED8;
-    --brand-secondary: #1E3A8A;
+    --brand-primary: #172554; /*tetap (menu sidebar)*/
+    --brand-primary-hover: #005d7a; /*button*/
+    --brand-secondary: #172554;
     --brand-light-blue: #EFF6FF;
-    --brand-bg: #F8FAFC;
-    --brand-white: #FFFFFF;
-    --brand-text: #0F172A;
-    --brand-text-muted: #64748B;
-    --brand-border: #E2E8F0;
+    --brand-bg: #F8FAFC; /*tumpukan atas*/
+    --brand-white: #EFF6FF; /*isi*/
+    --brand-text: #ffefef; /*tulisan menu di sidebar*/
+    --brand-text-muted: #f0ffef; /*icon dan tulisan utama*/
+    --brand-border: #49769f; /*garis*/
     --brand-success: #10B981;
     --brand-warning: #F59E0B;
     --brand-danger: #EF4444;
@@ -33,15 +33,15 @@ body {
 
 h1, h2, h3, .heading-serif {
     font-family: var(--font-heading);
-    color: var(--brand-secondary);
+    color: #172554;
     letter-spacing: -0.01em;
 }
 
 /* Navbar */
 .navbar-griya {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 253, 253, 0.95);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--brand-border);
+    border-bottom: 1px solid #FFFFFF;
     transition: all 0.3s ease;
 }
 
@@ -63,7 +63,7 @@ h1, h2, h3, .heading-serif {
 .nav-link-griya {
     font-weight: 500;
     font-size: 0.95rem;
-    color: var(--brand-text);
+    color: #172554;
     padding: 0.5rem 1rem !important;
     transition: color 0.2s ease;
 }
@@ -211,7 +211,7 @@ h1, h2, h3, .heading-serif {
 
 /* Sidebar Dashboard */
 .sidebar-griya {
-    background: var(--brand-white);
+    background: #0a4174;
     border-right: 1px solid var(--brand-border);
     height: calc(100vh - 65px);
     padding: 1.5rem 1rem;

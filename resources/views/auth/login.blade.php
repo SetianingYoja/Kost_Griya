@@ -1,8 +1,7 @@
 @extends('layouts.app')
-
 @section('title', 'Masuk ke Akun — Kost Putri Griya Ayu')
-
 @section('content')
+
 <div class="container py-5 my-md-4">
     <div class="row justify-content-center">
         <div class="col-lg-5 col-md-8">
@@ -11,7 +10,7 @@
                     <div class="stat-icon mx-auto mb-3" style="background: rgba(37, 99, 235, 0.1); color: var(--brand-primary); width: 56px; height: 56px;">
                         <i class="bi bi-shield-lock-fill fs-3"></i>
                     </div>
-                    <h2 class="h3 fw-bold mb-1">Selamat Datang Kembali</h2>
+                    <h2 class="h3 fw-bold mb-1"style="color: var(--brand-secondary);">Selamat Datang Kembali </h2>
                     <p class="text-muted small">Silakan masuk ke portal Kost Putri Griya Ayu</p>
                 </div>
 

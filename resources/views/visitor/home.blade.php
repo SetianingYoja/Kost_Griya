@@ -10,7 +10,7 @@
                     <i class="bi bi-shield-check"></i>
                     <span>Khusus Putri — Aman, Nyaman, & Tenang</span>
                 </div>
-                <h1 class="display-4 fw-bold mb-3 text-secondary" style="font-family: var(--font-heading); line-height: 1.15;">
+                <h1 class="display-4 fw-bold mb-3 text-dark" style="font-family: var(--font-heading); line-height: 1.15;">
                     Hunian Kost Putri Modern & Elegan di Purwokerto, Banyumas
                 </h1>
                 <p class="lead text-muted mb-4" style="font-size: 1.08rem; font-weight: 400;">
@@ -66,7 +66,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
             <div>
                 <span class="badge-tagline mb-2">Koleksi Kamar</span>
-                <h2 class="display-6 fw-bold text-secondary mb-1">Pilihan Kamar Kost Terbaik</h2>
+                <h2 class="display-6 fw-bold text-dark mb-1">Pilihan Kamar Kost Terbaik</h2>
                 <p class="text-muted mb-0">Temukan tipe kamar yang paling sesuai dengan preferensi dan kebutuhan Anda</p>
             </div>
             <div class="mt-3 mt-md-0">
@@ -97,7 +97,7 @@
                                 <span class="badge bg-light text-primary border fw-semibold">{{ $kamar->tipeKamar->nama_tipe ?? 'Standar' }}</span>
                                 <span class="small text-muted"><i class="bi bi-layers me-1"></i>Lantai {{ $kamar->lantai }}</span>
                             </div>
-                            <h4 class="fw-bold text-secondary mb-2">{{ $kamar->nomor_kamar }}</h4>
+                            <h4 class="fw-bold text-dark mb-2">{{ $kamar->nomor_kamar }}</h4>
                             <p class="text-muted small mb-3 flex-grow-1">
                                 {{ Str::limit($kamar->fasilitas ?? $kamar->deskripsi, 85) }}
                             </p>
