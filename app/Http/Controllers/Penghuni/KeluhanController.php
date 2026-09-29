@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Penghuni;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
 use App\Models\Keluhan;
 use App\Models\RiwayatAktivitas;
 use App\Models\Sewa;
+use App\Notifications\BusinessNotification;
+use App\Services\Notifications\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class KeluhanController extends Controller
 {
+    public function __construct(private readonly NotificationService $notificationService) {}
+
     private function getEligibleActiveSewa(): ?Sewa
     {
         $sewa = Sewa::with(['kamar', 'booking.pembayarans'])
@@ -21,7 +24,7 @@ class KeluhanController extends Controller
             ->latest()
             ->first();
 
-        if (!$sewa) {
+        if (! $sewa) {
             return null;
         }
 
@@ -29,7 +32,7 @@ class KeluhanController extends Controller
         $hasApprovedBooking = $booking && $booking->status === 'Selesai';
         $hasLunasPayment = $booking && $booking->pembayarans()->where('status', 'Lunas')->exists();
 
-        if (!$hasApprovedBooking || !$hasLunasPayment) {
+        if (! $hasApprovedBooking || ! $hasLunasPayment) {
             return null;
         }
 
@@ -62,7 +65,7 @@ class KeluhanController extends Controller
     {
         $activeSewa = $this->getEligibleActiveSewa();
 
-        if (!$activeSewa) {
+        if (! $activeSewa) {
             return redirect()->route('penghuni.dashboard')
                 ->with('error', 'Anda belum dapat menambahkan keluhan. Pastikan booking Anda telah disetujui, pembayaran sudah lunas, dan Anda memiliki sewa aktif.');
         }
@@ -74,7 +77,7 @@ class KeluhanController extends Controller
     {
         $activeSewa = $this->getEligibleActiveSewa();
 
-        if (!$activeSewa) {
+        if (! $activeSewa) {
             return redirect()->route('penghuni.dashboard')
                 ->with('error', 'Anda belum memenuhi syarat untuk mengirim keluhan. Pastikan booking Anda telah disetujui, pembayaran sudah lunas, dan sewa aktif sudah berjalan.');
         }
@@ -94,7 +97,7 @@ class KeluhanController extends Controller
             $path = $request->file('foto')->store('keluhan', 'public');
         }
 
-        $kodeKeluhan = 'KLH-' . date('Ymd') . '-' . strtoupper(Str::random(5));
+        $kodeKeluhan = 'KLH-'.date('Ymd').'-'.strtoupper(Str::random(5));
 
         $keluhan = Keluhan::create([
             'kode_keluhan' => $kodeKeluhan,
@@ -109,9 +112,21 @@ class KeluhanController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Kirim Keluhan Fasilitas',
-            'Mengirimkan laporan: "' . $request->judul . '" (' . $kodeKeluhan . ')',
+            'Mengirimkan laporan: "'.$request->judul.'" ('.$kodeKeluhan.')',
             'warning'
         );
+
+        $notification = new BusinessNotification(
+            'keluhan',
+            'diajukan',
+            'Keluhan baru diterima',
+            'Keluhan '.$kodeKeluhan.' menunggu tindak lanjut.',
+            'keluhan:'.$keluhan->id.':diajukan',
+            ['entity_type' => 'keluhan', 'entity_id' => $keluhan->id, 'actor_id' => Auth::id()]
+        );
+
+        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return redirect()->route('penghuni.keluhan.index')
             ->with('success', 'Keluhan Anda berhasil dikirimkan. Pemilik kost akan segera menindaklanjuti.');

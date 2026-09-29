@@ -71,8 +71,8 @@
                                 <i class="bi bi-eye"></i> Detail
                             </a>
                             @if(in_array($tagihan->status, ['Belum Dibayar', 'Terlambat']))
-                                <a href="{{ route('penghuni.pembayaran.create', ['tagihan_id' => $tagihan->id]) }}" class="btn btn-sm btn-primary-griya ms-1">
-                                    <i class="bi bi-upload"></i> Bayar
+                                <a href="{{ route('penghuni.tagihan.bayar', $tagihan->id) }}" class="btn btn-sm btn-primary-griya ms-1">
+                                    <i class="bi bi-qr-code-scan"></i> Bayar
                                 </a>
                             @endif
                         </td>

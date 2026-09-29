@@ -11,7 +11,7 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $legacySuperAdmin = Role::where('slug', 'superadmin')->first();
-        if ($legacySuperAdmin && !Role::where('slug', 'super-admin')->exists()) {
+        if ($legacySuperAdmin && ! Role::where('slug', 'super-admin')->exists()) {
             $legacySuperAdmin->slug = 'super-admin';
             $legacySuperAdmin->save();
         }
@@ -63,6 +63,7 @@ class RolePermissionSeeder extends Seeder
             // Keluhan & Rating
             ['name' => 'Tanggapi Keluhan', 'slug' => 'manage-keluhan', 'module' => 'Keluhan', 'description' => 'Memproses dan memberi respon pada keluhan penghuni.'],
             ['name' => 'Kirim Keluhan', 'slug' => 'create-keluhan', 'module' => 'Keluhan', 'description' => 'Mengirim laporan komplain atau keluhan.'],
+            ['name' => 'Moderasi Rating', 'slug' => 'manage-rating', 'module' => 'Rating', 'description' => 'Melihat dan memoderasi rating & ulasan dari penghuni.'],
             ['name' => 'Beri Rating', 'slug' => 'create-rating', 'module' => 'Rating', 'description' => 'Memberi penilaian kost dan penanganan keluhan.'],
 
             // Laporan
@@ -80,7 +81,7 @@ class RolePermissionSeeder extends Seeder
 
         // 3. Kaitkan Permissions ke Roles
         // Super Admin gets all permissions
-        $superAdmin->permissions()->sync(array_values(array_map(fn($pm) => $pm->id, $permissionModels)));
+        $superAdmin->permissions()->sync(array_values(array_map(fn ($pm) => $pm->id, $permissionModels)));
 
         // Pemilik Kost
         $pemilikPermissions = [
@@ -91,9 +92,10 @@ class RolePermissionSeeder extends Seeder
             'validate-pembayaran',
             'manage-tagihan',
             'manage-keluhan',
+            'manage-rating',
             'view-laporan-operasional',
         ];
-        $pemilikIds = array_filter(array_map(fn($slug) => $permissionModels[$slug]->id ?? null, $pemilikPermissions));
+        $pemilikIds = array_filter(array_map(fn ($slug) => $permissionModels[$slug]->id ?? null, $pemilikPermissions));
         $pemilik->permissions()->sync($pemilikIds);
 
         // Penghuni
@@ -106,7 +108,7 @@ class RolePermissionSeeder extends Seeder
             'create-keluhan',
             'create-rating',
         ];
-        $penghuniIds = array_filter(array_map(fn($slug) => $permissionModels[$slug]->id ?? null, $penghuniPermissions));
+        $penghuniIds = array_filter(array_map(fn ($slug) => $permissionModels[$slug]->id ?? null, $penghuniPermissions));
         $penghuni->permissions()->sync($penghuniIds);
     }
 }

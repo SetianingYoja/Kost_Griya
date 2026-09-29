@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Pemilik;
 
 use App\Http\Controllers\Controller;
-use App\Models\Kamar;
 use App\Models\RiwayatAktivitas;
 use App\Models\Sewa;
 use App\Models\Tagihan;
-use App\Models\User;
-use Carbon\Carbon;
+use App\Notifications\BusinessNotification;
+use App\Services\Notifications\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class TagihanController extends Controller
 {
+    public function __construct(private readonly NotificationService $notificationService) {}
+
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -42,6 +43,7 @@ class TagihanController extends Controller
     {
         // Hanya sewa aktif
         $activeSewas = Sewa::with(['user', 'kamar'])->where('status', 'Aktif')->get();
+
         return view('pemilik.tagihan.create', compact('activeSewas'));
     }
 
@@ -59,7 +61,7 @@ class TagihanController extends Controller
         $nominal = $request->nominal;
         $potonganDp = $request->potongan_dp ?? 0;
         $totalBayar = max(0, $nominal - $potonganDp);
-        $nomorTagihan = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+        $nomorTagihan = 'INV-'.date('Ymd').'-'.strtoupper(Str::random(4));
 
         $tagihan = Tagihan::create([
             'nomor_tagihan' => $nomorTagihan,
@@ -78,17 +80,30 @@ class TagihanController extends Controller
         RiwayatAktivitas::catat(
             $sewa->user_id,
             'Tagihan Sewa Baru Diterbitkan',
-            'Tagihan periode ' . $request->periode . ' sebesar Rp ' . number_format($totalBayar, 0, ',', '.') . ' telah diterbitkan.',
+            'Tagihan periode '.$request->periode.' sebesar Rp '.number_format($totalBayar, 0, ',', '.').' telah diterbitkan.',
             'warning'
         );
 
+        $notification = new BusinessNotification(
+            'tagihan',
+            'diterbitkan',
+            'Tagihan baru diterbitkan',
+            'Tagihan '.$nomorTagihan.' periode '.$request->periode.' telah diterbitkan.',
+            'tagihan:'.$tagihan->id.':diterbitkan',
+            ['entity_type' => 'tagihan', 'entity_id' => $tagihan->id, 'actor_id' => auth()->id()]
+        );
+
+        $this->notificationService->sendAfterCommit($sewa->user, $notification);
+        $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, auth()->id());
+
         return redirect()->route('pemilik.tagihan.index')
-            ->with('success', 'Tagihan ' . $nomorTagihan . ' berhasil dibuat dan dikirim ke penghuni.');
+            ->with('success', 'Tagihan '.$nomorTagihan.' berhasil dibuat dan dikirim ke penghuni.');
     }
 
     public function show($id)
     {
         $tagihan = Tagihan::with(['user', 'kamar.tipeKamar', 'pembayarans', 'sewa'])->findOrFail($id);
+
         return view('pemilik.tagihan.show', compact('tagihan'));
     }
 }

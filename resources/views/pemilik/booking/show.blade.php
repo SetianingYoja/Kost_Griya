@@ -64,7 +64,7 @@
             @endif
 
             <!-- Form Approval / Rejection jika Menunggu Validasi -->
-            @if($booking->status === 'Menunggu Validasi')
+            @if($booking->status === 'Menunggu Validasi' && !$hasInitialPaymentAwaitingValidation)
                 <div class="p-4 bg-light rounded-3 border mt-4">
                     <h5 class="fw-bold text-secondary mb-3">Tindakan Validasi Pemilik Kost:</h5>
                     <div class="d-flex flex-wrap gap-2">
@@ -90,6 +90,11 @@
                             <button type="submit" class="btn btn-danger btn-sm">Konfirmasi Tolak Booking</button>
                         </form>
                     </div>
+                </div>
+            @elseif($hasInitialPaymentAwaitingValidation)
+                <div class="alert alert-info small mt-4 mb-0">
+                    Pembayaran Booking Awal sudah menunggu validasi. Lanjutkan melalui
+                    <a href="{{ route('pemilik.pembayaran.index', ['status' => 'Menunggu Validasi', 'jenis' => 'Booking Awal']) }}" class="alert-link">Validasi Pembayaran</a>.
                 </div>
             @endif
         </div>

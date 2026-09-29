@@ -25,10 +25,10 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold text-secondary">Tipe Kamar</label>
-                        <select name="tipe_kamar_id" class="form-select" required>
+                        <select id="tipe_kamar_id" name="tipe_kamar_id" class="form-select" required>
                             <option value="">Pilih Tipe</option>
                             @foreach($tipeKamars as $tipe)
-                                <option value="{{ $tipe->id }}" {{ old('tipe_kamar_id') == $tipe->id ? 'selected' : '' }}>
+                                <option value="{{ $tipe->id }}" data-harga-bulanan="{{ $tipe->harga_bulanan }}" {{ old('tipe_kamar_id') == $tipe->id ? 'selected' : '' }}>
                                     {{ $tipe->nama_tipe }} (Dasar: Rp {{ number_format($tipe->harga_bulanan, 0, ',', '.') }})
                                 </option>
                             @endforeach
@@ -40,7 +40,7 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-secondary">Tarif Sewa (Rp / Bulan)</label>
-                        <input type="number" name="harga" class="form-control" value="{{ old('harga', 950000) }}" min="0" step="10000" required>
+                        <input id="harga" type="number" name="harga" class="form-control" value="{{ old('harga', '') }}" min="0" step="10000" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-semibold text-secondary">Status Awal</label>
@@ -80,4 +80,21 @@
         </div>
     </div>
 </div>
+<script>
+    const tipeKamarSelect = document.getElementById('tipe_kamar_id');
+    const hargaInput = document.getElementById('harga');
+
+    const updateHarga = () => {
+        const selectedOption = tipeKamarSelect.options[tipeKamarSelect.selectedIndex];
+        if (selectedOption.dataset.hargaBulanan) {
+            hargaInput.value = selectedOption.dataset.hargaBulanan;
+        }
+    };
+
+    tipeKamarSelect.addEventListener('change', updateHarga);
+
+    if (!hargaInput.value && tipeKamarSelect.value) {
+        updateHarga();
+    }
+</script>
 @endsection

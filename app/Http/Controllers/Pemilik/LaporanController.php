@@ -7,8 +7,7 @@ use App\Models\Kamar;
 use App\Models\Keluhan;
 use App\Models\Pembayaran;
 use App\Models\Rating;
-use App\Models\Sewa;
-use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 
 class LaporanController extends Controller
@@ -19,12 +18,33 @@ class LaporanController extends Controller
         $tahun = $request->query('tahun', date('Y'));
 
         // Keuangan / Pendapatan
-        $pembayarans = Pembayaran::with(['user', 'booking.kamar', 'tagihan'])
+        $pembayarans = Pembayaran::with([
+            'user',
+            'booking.kamar',
+            'booking.sewa',
+            'perpanjangan.sewa.kamar',
+            'tagihan.sewa.kamar',
+        ])
             ->where('status', 'Lunas')
             ->whereMonth('tanggal_bayar', $bulan)
             ->whereYear('tanggal_bayar', $tahun)
             ->latest('tanggal_bayar')
             ->get();
+
+        $pembayarans->each(function (Pembayaran $pembayaran): void {
+            $pembayaran->setAttribute('periode_sewa', match ($pembayaran->jenis_pembayaran) {
+                'Booking Awal' => $this->formatRentPeriod(
+                    $pembayaran->booking?->sewa?->tanggal_mulai,
+                    $pembayaran->booking?->sewa?->tanggal_selesai
+                ),
+                'DP Perpanjangan', 'Pelunasan Perpanjangan', 'Lunas Perpanjangan' => $this->formatRentPeriod(
+                    $pembayaran->perpanjangan?->tanggal_mulai_baru,
+                    $pembayaran->perpanjangan?->tanggal_selesai_baru
+                ),
+                'Tagihan Bulanan' => $pembayaran->tagihan?->periode ?: '-',
+                default => '-',
+            });
+        });
 
         $totalPendapatan = $pembayarans->sum('nominal');
 
@@ -56,5 +76,14 @@ class LaporanController extends Controller
             'avgRatingKost',
             'avgRatingKeluhan'
         ));
+    }
+
+    private function formatRentPeriod(?CarbonInterface $start, ?CarbonInterface $end): string
+    {
+        if (! $start || ! $end) {
+            return '-';
+        }
+
+        return $start->format('d M Y').' - '.$end->format('d M Y');
     }
 }

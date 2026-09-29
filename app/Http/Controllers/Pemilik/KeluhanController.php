@@ -5,11 +5,16 @@ namespace App\Http\Controllers\Pemilik;
 use App\Http\Controllers\Controller;
 use App\Models\Keluhan;
 use App\Models\RiwayatAktivitas;
+use App\Notifications\BusinessNotification;
+use App\Services\Notifications\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KeluhanController extends Controller
 {
+    public function __construct(private readonly NotificationService $notificationService) {}
+
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -37,6 +42,7 @@ class KeluhanController extends Controller
     public function show($id)
     {
         $keluhan = Keluhan::with(['user', 'kamar', 'rating'])->findOrFail($id);
+
         return view('pemilik.keluhan.show', compact('keluhan'));
     }
 
@@ -66,10 +72,22 @@ class KeluhanController extends Controller
 
         RiwayatAktivitas::catat(
             $keluhan->user_id,
-            'Keluhan ' . $request->status,
-            'Penanganan keluhan "' . $keluhan->judul . '" berstatus ' . $request->status . '. Tanggapan: ' . $request->tanggapan,
+            'Keluhan '.$request->status,
+            'Penanganan keluhan "'.$keluhan->judul.'" berstatus '.$request->status.'. Tanggapan: '.$request->tanggapan,
             $request->status === 'Selesai' ? 'success' : 'info'
         );
+
+        $notification = new BusinessNotification(
+            'keluhan',
+            'status_diperbarui',
+            'Status keluhan diperbarui',
+            'Keluhan "'.$keluhan->judul.'" berstatus '.$keluhan->status.'.',
+            'keluhan:'.$keluhan->id.':status:'.strtolower($keluhan->status),
+            ['entity_type' => 'keluhan', 'entity_id' => $keluhan->id, 'actor_id' => Auth::id()]
+        );
+
+        $this->notificationService->sendAfterCommit($keluhan->user, $notification);
+        $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return back()->with('success', 'Status keluhan dan tanggapan berhasil diperbarui.');
     }

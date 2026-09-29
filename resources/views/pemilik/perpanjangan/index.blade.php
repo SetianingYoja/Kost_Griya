@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Kelola Perpanjangan Sewa (Model B)')
+@section('title', 'Kelola Perpanjangan Sewa ')
 
 @section('content')
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
-        <h3 class="fw-bold text-secondary mb-1">Pengajuan Perpanjangan Sewa (Model B)</h3>
+        <h3 class="fw-bold text-secondary mb-1">Pengajuan Perpanjangan Sewa</h3>
         <p class="text-muted small mb-0">Tinjau permohonan perpanjangan dan tetapkan nominal DP untuk penghuni</p>
     </div>
 </div>
@@ -42,7 +42,7 @@
                     <th>Durasi</th>
                     <th>Periode Baru</th>
                     <th>Total Biaya</th>
-                    <th>Nominal DP</th>
+                    <th>Bayar Awal</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
@@ -59,16 +59,23 @@
                         <td>{{ $perpanjangan->tanggal_mulai_baru->format('d/m/Y') }} s/d {{ $perpanjangan->tanggal_selesai_baru->format('d/m/Y') }}</td>
                         <td>Rp {{ number_format($perpanjangan->nominal_total, 0, ',', '.') }}</td>
                         <td>
-                            <strong class="text-primary">Rp {{ number_format($perpanjangan->nominal_dp, 0, ',', '.') }}</strong>
-                            <small class="text-muted">({{ $perpanjangan->dp_persen }}%)</small>
+                            @if(($perpanjangan->tipe_pembayaran ?? 'DP') === 'Lunas')
+                                <span class="badge bg-success mb-1">LUNAS</span>
+                                <div><strong class="text-success">Rp {{ number_format($perpanjangan->nominal_total, 0, ',', '.') }}</strong></div>
+                            @else
+                                <span class="badge bg-info text-dark mb-1">DP ({{ $perpanjangan->dp_persen }}%)</span>
+                                <div><strong class="text-primary">Rp {{ number_format($perpanjangan->nominal_dp, 0, ',', '.') }}</strong></div>
+                            @endif
                         </td>
                         <td>
-                            @if($perpanjangan->status === 'Menunggu Validasi')
+                            @if($perpanjangan->status === 'DP Dibayar' || $perpanjangan->status === 'Aktif')
+                                <span class="badge bg-success">Perpanjangan Aktif</span>
+                            @elseif($perpanjangan->dpPembayaran && $perpanjangan->dpPembayaran->status === 'Menunggu Validasi')
+                                <span class="badge bg-warning text-dark">Menunggu Validasi Bayar</span>
+                            @elseif($perpanjangan->status === 'Menunggu Validasi')
                                 <span class="badge bg-warning text-dark">Perlu Evaluasi</span>
                             @elseif($perpanjangan->status === 'Menunggu Pembayaran DP')
-                                <span class="badge bg-primary">Menunggu Bayar DP</span>
-                            @elseif($perpanjangan->status === 'DP Dibayar' || $perpanjangan->status === 'Aktif')
-                                <span class="badge bg-success">Perpanjangan Aktif</span>
+                                <span class="badge bg-primary">Menunggu Bayar {{ ($perpanjangan->tipe_pembayaran ?? 'DP') === 'Lunas' ? 'Lunas' : 'DP' }}</span>
                             @elseif($perpanjangan->status === 'Ditolak')
                                 <span class="badge bg-danger">Ditolak</span>
                             @else

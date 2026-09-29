@@ -20,15 +20,22 @@ class Rating extends Model
         'jenis_rating',
         'skor',
         'komentar',
+        'status',
+        'balasan',
+        'dibalas_pada',
+        'disetujui_pada',
     ];
 
     protected $casts = [
         'skor' => 'integer',
+        'dibalas_pada' => 'datetime',
+        'disetujui_pada' => 'datetime',
     ];
 
     public function scopeValidForDisplay($query)
     {
         return $query
+            ->where('status', 'Disetujui')
             ->whereNotNull('user_id')
             ->whereNotNull('kamar_id')
             ->whereNotNull('sewa_id')

@@ -20,18 +20,26 @@ class Booking extends Model
         'kamar_id',
         'tanggal_mulai',
         'durasi_bulan',
+        'tipe_pembayaran',
         'total_harga',
         'catatan',
         'status',
         'alasan_penolakan',
         'batas_pembayaran',
+        'nominal_dp',
+        'midtrans_order_id',
+        'midtrans_snap_token',
+        'midtrans_status',
+        'midtrans_paid_at',
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
         'total_harga' => 'decimal:2',
+        'nominal_dp' => 'decimal:2',
         'durasi_bulan' => 'integer',
         'batas_pembayaran' => 'datetime',
+        'midtrans_paid_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

@@ -21,6 +21,8 @@ class Pembayaran extends Model
         'jenis_pembayaran',
         'nominal',
         'metode_pembayaran',
+        'midtrans_transaction_id',
+        'midtrans_payment_type',
         'nama_pengirim',
         'bank_pengirim',
         'bukti_pembayaran',
@@ -28,12 +30,15 @@ class Pembayaran extends Model
         'status',
         'catatan_penghuni',
         'catatan_pemilik',
+        'catatan_refund',
+        'tanggal_refund',
         'diverifikasi_pada',
     ];
 
     protected $casts = [
         'nominal' => 'decimal:2',
         'tanggal_bayar' => 'date',
+        'tanggal_refund' => 'date',
         'diverifikasi_pada' => 'datetime',
     ];
 
@@ -59,9 +64,10 @@ class Pembayaran extends Model
 
     public function getBuktiUrlAttribute(): ?string
     {
-        if ($this->bukti_pembayaran && file_exists(public_path('storage/' . $this->bukti_pembayaran))) {
-            return asset('storage/' . $this->bukti_pembayaran);
+        if ($this->bukti_pembayaran && file_exists(public_path('storage/'.$this->bukti_pembayaran))) {
+            return asset('storage/'.$this->bukti_pembayaran);
         }
+
         return null;
     }
 }

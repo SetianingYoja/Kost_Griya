@@ -336,6 +336,14 @@
                                             </div>
                                         </div>
                                         <p class="small text-muted mb-0">{{ $review->komentar ?: 'Penghuni merasa kamar ini nyaman dan layak dihuni.' }}</p>
+                                        @if($review->balasan)
+                                            <div class="mt-2 p-2 bg-light rounded-2 border-start border-3 border-primary small">
+                                                <span class="fw-semibold text-primary d-block mb-1" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-reply-fill me-1"></i>Respon Pemilik Kost:
+                                                </span>
+                                                <p class="text-muted small mb-0">{{ $review->balasan }}</p>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
@@ -390,12 +398,42 @@
 
                                 <div class="mb-3">
                                     <label class="form-label small fw-semibold text-secondary">Durasi Sewa Awal</label>
-                                    <select name="durasi_bulan" class="form-select" required>
-                                        <option value="1">1 Bulan (Rp {{ number_format($kamar->harga * 1, 0, ',', '.') }})</option>
-                                        <option value="3">3 Bulan (Rp {{ number_format($kamar->harga * 3, 0, ',', '.') }})</option>
-                                        <option value="6">6 Bulan (Rp {{ number_format($kamar->harga * 6, 0, ',', '.') }})</option>
-                                        <option value="12">12 Bulan (1 Tahun) (Rp {{ number_format($kamar->harga * 12, 0, ',', '.') }})</option>
+                                    <select name="durasi_bulan" id="booking_durasi_bulan" class="form-select" required>
+                                        <option value="1" data-total="{{ $kamar->harga * 1 }}">1 Bulan (Rp {{ number_format($kamar->harga * 1, 0, ',', '.') }})</option>
+                                        <option value="3" data-total="{{ $kamar->harga * 3 }}">3 Bulan (Rp {{ number_format($kamar->harga * 3, 0, ',', '.') }})</option>
+                                        <option value="6" data-total="{{ $kamar->harga * 6 }}">6 Bulan (Rp {{ number_format($kamar->harga * 6, 0, ',', '.') }})</option>
+                                        <option value="12" data-total="{{ $kamar->harga * 12 }}">12 Bulan (1 Tahun) (Rp {{ number_format($kamar->harga * 12, 0, ',', '.') }})</option>
                                     </select>
+                                </div>
+
+                                {{-- Pilihan Tipe Pembayaran DP / Lunas --}}
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold text-secondary">Tipe Pembayaran</label>
+                                    <div class="d-flex gap-2">
+                                        <div class="flex-fill">
+                                            <input type="radio" class="btn-check" name="tipe_pembayaran" id="tipe_dp" value="DP" checked>
+                                            <label class="btn btn-outline-primary w-100" for="tipe_dp">
+                                                <i class="bi bi-percent me-1"></i> DP
+                                            </label>
+                                        </div>
+                                        <div class="flex-fill">
+                                            <input type="radio" class="btn-check" name="tipe_pembayaran" id="tipe_lunas" value="Lunas">
+                                            <label class="btn btn-outline-success w-100" for="tipe_lunas">
+                                                <i class="bi bi-check-circle me-1"></i> Lunas
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {{-- Keterangan tipe --}}
+                                    <div id="info_tipe_dp" class="mt-2 p-2 rounded-2 bg-light small text-muted">
+                                        <i class="bi bi-info-circle me-1 text-primary"></i>
+                                        <strong>DP:</strong> Bayar 30% dari 1 bulan sewa sekarang. Sisanya dibayar melalui tagihan bulanan.
+                                        Nominal DP: <strong id="nominal_dp_preview">Rp {{ number_format(floor($kamar->harga * 0.30), 0, ',', '.') }}</strong>
+                                    </div>
+                                    <div id="info_tipe_lunas" class="mt-2 p-2 rounded-2 bg-light small text-muted d-none">
+                                        <i class="bi bi-info-circle me-1 text-success"></i>
+                                        <strong>Lunas:</strong> Bayar seluruh biaya sewa sesuai durasi di awal. Tidak ada tagihan bulanan outstanding.
+                                        Nominal Lunas: <strong id="nominal_lunas_preview">Rp {{ number_format($kamar->harga * 1, 0, ',', '.') }}</strong>
+                                    </div>
                                 </div>
 
                                 <div class="mb-4">
@@ -407,6 +445,44 @@
                                     <i class="bi bi-calendar-check me-2"></i> Ajukan Booking Kamar
                                 </button>
                                 <p class="small text-muted text-center mt-2 mb-0">Permohonan booking akan divalidasi oleh Pemilik Kost.</p>
+
+                                <script>
+                                (function() {
+                                    const hargaPerBulan = {{ (int) $kamar->harga }};
+                                    const dpPersen = 0.30;
+                                    const durasiSelect = document.getElementById('booking_durasi_bulan');
+                                    const infoDP = document.getElementById('info_tipe_dp');
+                                    const infoLunas = document.getElementById('info_tipe_lunas');
+                                    const nominalDpPreview = document.getElementById('nominal_dp_preview');
+                                    const nominalLunasPreview = document.getElementById('nominal_lunas_preview');
+                                    const radioDP = document.getElementById('tipe_dp');
+                                    const radioLunas = document.getElementById('tipe_lunas');
+
+                                    function formatRupiah(n) {
+                                        return 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                                    }
+
+                                    function updatePreview() {
+                                        const total = parseInt(durasiSelect.options[durasiSelect.selectedIndex].dataset.total || hargaPerBulan);
+                                        const nominalDp = Math.floor(hargaPerBulan * dpPersen);
+                                        nominalDpPreview.textContent = formatRupiah(nominalDp);
+                                        nominalLunasPreview.textContent = formatRupiah(total);
+
+                                        if (radioLunas.checked) {
+                                            infoDP.classList.add('d-none');
+                                            infoLunas.classList.remove('d-none');
+                                        } else {
+                                            infoDP.classList.remove('d-none');
+                                            infoLunas.classList.add('d-none');
+                                        }
+                                    }
+
+                                    durasiSelect.addEventListener('change', updatePreview);
+                                    radioDP.addEventListener('change', updatePreview);
+                                    radioLunas.addEventListener('change', updatePreview);
+                                    updatePreview();
+                                })();
+                                </script>
                             </form>
                         @else
                             <div class="alert alert-info small mb-0">

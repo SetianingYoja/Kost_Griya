@@ -18,14 +18,8 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-griya sticky-top py-3">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}">
-                <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--brand-primary); width: 42px; height: 42px;">
-                    <i class="bi bi-buildings"></i>
-                </div>
-                <div>
-                    <span class="navbar-brand-title d-block lh-1">Griya Ayu</span>
-                    <span class="navbar-brand-subtitle">Boarding House</span>
-                </div>
+            <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
+                <img src="{{ asset('images/logo-griya-ayu.svg') }}" alt="Griya Ayu Logo" style="height: 52px; width: auto; display: block;">
             </a>
 
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
@@ -154,11 +148,8 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="stat-icon" style="background: rgba(37, 99, 235, 0.2); color: #60A5FA; width: 40px; height: 40px;">
-                            <i class="bi bi-buildings"></i>
-                        </div>
-                        <span class="fs-4 text-white fw-bold font-serif">Kost Putri Griya Ayu</span>
+                    <div class="mb-3">
+                        <img src="{{ asset('images/logo-griya-ayu.svg') }}" alt="Griya Ayu Logo" style="height: 60px; width: auto; filter: brightness(0) invert(1); display: block;">
                     </div>
                     <p class="text-secondary small leading-relaxed mb-3">
                         Hunian kost putri modern, aman, dan nyaman di kawasan strategis Purwokerto, Banyumas. Pilihan tepat bagi mahasiswi dan karyawati dengan fasilitas lengkap dan lingkungan kondusif.

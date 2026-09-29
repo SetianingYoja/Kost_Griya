@@ -54,37 +54,35 @@
     </div>
 
 <!-- ============================================== -->
-<!-- STATE 3: MENUNGGU PEMBAYARAN                   -->
+<!-- STATE 3: MENUNGGU PEMBAYARAN (QRIS MIDTRANS)   -->
 <!-- ============================================== -->
 @elseif($state === 'menunggu_pembayaran')
     <div class="card-griya p-4 mb-4 border-primary">
         <div class="row g-4 align-items-center">
             <div class="col-lg-7">
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-success px-3 py-1 rounded-pill">Booking Disetujui!</span>
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">Menunggu Pembayaran</span>
+                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill"><i class="bi bi-clock-history me-1"></i> Menunggu Pembayaran QRIS</span>
                 </div>
-                <h4 class="fw-bold text-secondary mb-2">Segera Selesaikan Pembayaran Sewa Kamar</h4>
+                <h4 class="fw-bold text-secondary mb-2">Selesaikan Pembayaran DP Sewa Kamar</h4>
                 <p class="text-muted small mb-3">
-                    Booking Anda untuk <strong>{{ $activeBooking->kamar->nomor_kamar }}</strong> telah disetujui. Silakan lakukan transfer sebesar nominal berikut sebelum batas waktu berakhir.
+                    Booking Anda untuk <strong>{{ $activeBooking->kamar->nomor_kamar }}</strong> berhasil dibuat. Silakan lakukan pembayaran DP (30% dari tarif 1 bulan) via QRIS sebelum batas waktu habis.
                 </p>
                 <div class="p-3 bg-light rounded-3 d-inline-block mb-3 border">
-                    <span class="small text-muted d-block">Total Nominal yang Harus Ditransfer:</span>
-                    <span class="fs-3 fw-bold text-primary">Rp {{ number_format($activeBooking->total_harga, 0, ',', '.') }}</span>
+                    <span class="small text-muted d-block">Nominal DP Wajib Dibayar:</span>
+                    <span class="fs-3 fw-bold text-primary">Rp {{ number_format($activeBooking->nominal_dp ?? ($activeBooking->kamar->harga * 0.3), 0, ',', '.') }}</span>
                 </div>
                 <div class="small text-muted">
                     <i class="bi bi-clock text-danger me-1"></i>
-                    Batas Pembayaran: <strong>{{ $activeBooking->batas_pembayaran ? $activeBooking->batas_pembayaran->format('d M Y, H:i') . ' WIB' : '24 Jam' }}</strong>
+                    Batas Pembayaran: <strong>{{ $activeBooking->batas_pembayaran ? $activeBooking->batas_pembayaran->format('d M Y, H:i') . ' WIB' : '60 Menit' }}</strong>
                 </div>
             </div>
             <div class="col-lg-5">
-                <div class="p-3 bg-light rounded-3 border">
-                    <strong class="d-block text-secondary small mb-2"><i class="bi bi-bank me-1"></i> Rekening Resmi Kost Griya Ayu:</strong>
-                    <div class="fw-bold fs-5 text-secondary">{{ $kostInfo->bank_nama ?? 'Bank BCA' }}</div>
-                    <div class="fs-4 fw-bold text-primary letter-spacing-1">{{ $kostInfo->bank_rekening ?? '8415291039' }}</div>
-                    <div class="small text-muted mb-3">a.n. {{ $kostInfo->bank_atas_nama ?? 'Kost Putri Griya Ayu' }}</div>
-                    <a href="{{ route('penghuni.pembayaran.create', ['booking_id' => $activeBooking->id]) }}" class="btn btn-primary-griya w-100 fw-semibold">
-                        <i class="bi bi-upload me-2"></i> Unggah Bukti Pembayaran
+                <div class="p-4 bg-light rounded-3 border text-center">
+                    <i class="bi bi-qr-code-scan fs-1 text-primary mb-2 d-block"></i>
+                    <h6 class="fw-bold text-secondary mb-1">Pembayaran Instan QRIS</h6>
+                    <p class="small text-muted mb-3">Scan via GoPay, OVO, Dana, ShopeePay, BCA Mobile, dll.</p>
+                    <a href="{{ route('penghuni.booking.bayar', $activeBooking->id) }}" class="btn btn-primary-griya w-100 fw-semibold py-2">
+                        <i class="bi bi-qr-code-scan me-2"></i> Bayar QRIS Sekarang
                     </a>
                 </div>
             </div>
@@ -151,8 +149,8 @@
                                 <span class="badge bg-danger">{{ $tagihan->status }}</span>
                             </div>
                             <div class="fs-5 fw-bold text-primary mb-2">Rp {{ number_format($tagihan->total_bayar, 0, ',', '.') }}</div>
-                            <a href="{{ route('penghuni.pembayaran.create', ['tagihan_id' => $tagihan->id]) }}" class="btn btn-sm btn-primary-griya w-100">
-                                <i class="bi bi-upload me-1"></i> Bayar Tagihan
+                            <a href="{{ route('penghuni.tagihan.bayar', $tagihan->id) }}" class="btn btn-sm btn-primary-griya w-100">
+                                <i class="bi bi-qr-code-scan me-1"></i> Bayar QRIS
                             </a>
                         </div>
                     @endforeach

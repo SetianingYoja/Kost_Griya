@@ -68,8 +68,8 @@
             </div>
 
             @if(in_array($tagihan->status, ['Belum Dibayar', 'Terlambat']))
-                <a href="{{ route('penghuni.pembayaran.create', ['tagihan_id' => $tagihan->id]) }}" class="btn btn-primary-griya w-100 py-3 fw-semibold">
-                    <i class="bi bi-credit-card me-2"></i> Bayar Tagihan Ini Sekarang
+                <a href="{{ route('penghuni.tagihan.bayar', $tagihan->id) }}" class="btn btn-primary-griya w-100 py-3 fw-semibold">
+                    <i class="bi bi-qr-code-scan me-2"></i> Bayar Tagihan Ini via QRIS
                 </a>
             @endif
         </div>

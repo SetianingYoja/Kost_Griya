@@ -21,8 +21,10 @@
                 <div>
                     @if($perpanjangan->status === 'DP Dibayar' || $perpanjangan->status === 'Aktif')
                         <span class="badge bg-success fs-6 px-3 py-2">Perpanjangan Aktif</span>
+                    @elseif($perpanjangan->dpPembayaran && $perpanjangan->dpPembayaran->status === 'Menunggu Validasi')
+                        <span class="badge bg-warning text-dark fs-6 px-3 py-2">Menunggu Validasi Pembayaran</span>
                     @elseif($perpanjangan->status === 'Menunggu Pembayaran DP')
-                        <span class="badge bg-primary fs-6 px-3 py-2">Menunggu Pembayaran DP</span>
+                        <span class="badge bg-primary fs-6 px-3 py-2">Menunggu Pembayaran {{ $perpanjangan->tipe_pembayaran === 'Lunas' ? 'Lunas' : 'DP' }}</span>
                     @elseif($perpanjangan->status === 'Ditolak')
                         <span class="badge bg-danger fs-6 px-3 py-2">Ditolak</span>
                     @else
@@ -41,14 +43,25 @@
                     <strong>Rp {{ number_format($perpanjangan->nominal_total, 0, ',', '.') }}</strong>
                 </div>
                 <div class="col-sm-6">
+                    <span class="text-muted d-block">Tipe Pembayaran:</span>
+                    <strong>{{ $perpanjangan->tipe_pembayaran === 'Lunas' ? 'Lunas (Bayar Penuh)' : 'DP 30% (Uang Muka)' }}</strong>
+                </div>
+                @if($perpanjangan->tipe_pembayaran === 'DP')
+                <div class="col-sm-6">
                     <span class="text-muted d-block">Kewajiban Uang Muka (DP):</span>
                     <strong class="fs-5 text-primary">Rp {{ number_format($perpanjangan->nominal_dp, 0, ',', '.') }}</strong>
                     <span class="text-muted">({{ $perpanjangan->dp_persen }}%)</span>
                 </div>
                 <div class="col-sm-6">
-                    <span class="text-muted d-block">Sisa Tagihan Bulanan (Model B):</span>
+                    <span class="text-muted d-block">Sisa Tagihan Bulanan:</span>
                     <strong>Rp {{ number_format($perpanjangan->nominal_total - $perpanjangan->nominal_dp, 0, ',', '.') }}</strong>
                 </div>
+                @else
+                <div class="col-sm-6">
+                    <span class="text-muted d-block">Nominal Pembayaran Lunas:</span>
+                    <strong class="fs-5 text-primary">Rp {{ number_format($perpanjangan->nominal_total, 0, ',', '.') }}</strong>
+                </div>
+                @endif
             </div>
 
             @if($perpanjangan->catatan)
@@ -65,14 +78,26 @@
                 </div>
             @endif
 
-            @if($perpanjangan->status === 'Menunggu Pembayaran DP')
+            @if($perpanjangan->dpPembayaran && $perpanjangan->dpPembayaran->status === 'Menunggu Validasi')
+                <div class="alert alert-warning mb-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-clock-history fs-4"></i>
+                    <div>
+                        <strong class="d-block">Pembayaran Berhasil Dikirim!</strong>
+                        <span class="small">Pembayaran Anda sebesar <strong>Rp {{ number_format($perpanjangan->dpPembayaran->nominal, 0, ',', '.') }}</strong> telah diterima sistem dan sedang menunggu validasi oleh Pemilik Kost.</span>
+                    </div>
+                </div>
+            @elseif($perpanjangan->status === 'Menunggu Pembayaran DP')
+                @php
+                    $nominalBayar = $perpanjangan->tipe_pembayaran === 'Lunas' ? $perpanjangan->nominal_total : $perpanjangan->nominal_dp;
+                    $labelBayar = $perpanjangan->tipe_pembayaran === 'Lunas' ? 'pembayaran Lunas' : 'DP';
+                @endphp
                 <div class="alert alert-primary mb-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                     <div>
                         <strong class="d-block mb-1">Pengajuan Disetujui!</strong>
-                        <span class="small">Silakan bayar DP sebesar <strong>Rp {{ number_format($perpanjangan->nominal_dp, 0, ',', '.') }}</strong> untuk mengaktifkan perpanjangan.</span>
+                        <span class="small">Silakan bayar {{ $labelBayar }} sebesar <strong>Rp {{ number_format($nominalBayar, 0, ',', '.') }}</strong> untuk mengaktifkan perpanjangan.</span>
                     </div>
-                    <a href="{{ route('penghuni.pembayaran.create', ['perpanjangan_id' => $perpanjangan->id]) }}" class="btn btn-primary-griya btn-sm flex-shrink-0">
-                        <i class="bi bi-upload me-1"></i> Unggah Bukti Bayar DP
+                    <a href="{{ route('penghuni.perpanjangan.bayar', $perpanjangan->id) }}" class="btn btn-primary-griya btn-sm flex-shrink-0">
+                        <i class="bi bi-qr-code-scan me-1"></i> Bayar QRIS
                     </a>
                 </div>
             @endif
@@ -82,7 +107,7 @@
     <!-- Status DP -->
     <div class="col-lg-4">
         <div class="card-griya p-4">
-            <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Status Pembayaran DP</h5>
+            <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Status Pembayaran {{ $perpanjangan->tipe_pembayaran === 'Lunas' ? 'Lunas' : 'DP' }}</h5>
             @if($perpanjangan->dpPembayaran)
                 <div class="p-3 bg-light rounded-3 border small">
                     <div class="d-flex justify-content-between mb-1">
@@ -95,7 +120,7 @@
                     <div class="text-muted">{{ $perpanjangan->dpPembayaran->tanggal_bayar ? $perpanjangan->dpPembayaran->tanggal_bayar->format('d M Y') : '' }}</div>
                 </div>
             @else
-                <p class="text-muted small mb-0">Belum ada pembayaran DP yang tercatat.</p>
+                <p class="text-muted small mb-0">Belum ada pembayaran yang tercatat.</p>
             @endif
         </div>
     </div>

@@ -53,13 +53,14 @@
                 </div>
             @endif
 
-            @if(in_array($booking->status, ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran']))
-                <form action="{{ route('penghuni.booking.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan booking ini?')">
-                    @csrf
-                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                        <i class="bi bi-x-lg me-1"></i> Batalkan Pemesanan Ini
-                    </button>
-                </form>
+             @if(in_array($booking->status, ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran']))
+                <form action="{{ route('penghuni.booking.cancel', $booking->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-x-lg me-1"></i> Batalkan Pemesanan Ini
+                </button>
+            </form>
             @endif
         </div>
     </div>
@@ -67,16 +68,17 @@
     <div class="col-lg-4">
         <div class="card-griya p-4">
             <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Status Pembayaran</h5>
-            @if(in_array($booking->status, ['Menunggu Pembayaran', 'Disetujui']))
-                <p class="small text-muted mb-3">Booking Anda telah disetujui. Silakan unggah bukti transfer sebelum batas waktu habis.</p>
-                <a href="{{ route('penghuni.pembayaran.create', ['booking_id' => $booking->id]) }}" class="btn btn-primary-griya w-100 mb-2">
-                    <i class="bi bi-upload me-1"></i> Bayar Sekarang
+            @if($booking->status === 'Menunggu Pembayaran')
+                <p class="small text-muted mb-3">Booking Anda menunggu pembayaran DP via QRIS. Silakan selesaikan pembayaran sebelum batas waktu habis.</p>
+                <a href="{{ route('penghuni.booking.bayar', $booking->id) }}" class="btn btn-primary-griya w-100 mb-2">
+                    <i class="bi bi-qr-code-scan me-1"></i> Bayar QRIS Sekarang
                 </a>
             @elseif($booking->status === 'Menunggu Validasi')
                 <p class="small text-muted mb-0">Permohonan Anda sedang dalam antrean pemeriksaan pemilik kost.</p>
-            @elseif($booking->status === 'Selesai')
+                @elseif($booking->status === 'Aktif')
                 <div class="alert alert-success small mb-0">
-                    <i class="bi bi-check-circle-fill me-1"></i> Pembayaran telah diverifikasi LUNAS dan sewa kamar aktif.
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    Pembayaran telah diverifikasi dan sewa kamar aktif.
                 </div>
             @endif
         </div>

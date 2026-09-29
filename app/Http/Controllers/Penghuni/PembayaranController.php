@@ -9,12 +9,16 @@ use App\Models\Pembayaran;
 use App\Models\Perpanjangan;
 use App\Models\RiwayatAktivitas;
 use App\Models\Tagihan;
+use App\Notifications\BusinessNotification;
+use App\Services\Notifications\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class PembayaranController extends Controller
 {
+    public function __construct(private readonly NotificationService $notificationService) {}
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -48,16 +52,19 @@ class PembayaranController extends Controller
 
         if ($request->filled('booking_id')) {
             $booking = Booking::with('kamar')->where('user_id', Auth::id())->findOrFail($request->booking_id);
-            $nominal = $booking->total_harga;
-            $jenis = 'Booking Awal';
+
+            return redirect()->route('penghuni.booking.bayar', $booking->id)
+                ->with('info', 'Pembayaran booking awal dilakukan secara instan via QRIS Midtrans.');
         } elseif ($request->filled('tagihan_id')) {
             $tagihan = Tagihan::with('kamar')->where('user_id', Auth::id())->findOrFail($request->tagihan_id);
-            $nominal = $tagihan->total_bayar;
-            $jenis = 'Tagihan Bulanan';
+
+            return redirect()->route('penghuni.tagihan.bayar', $tagihan->id)
+                ->with('info', 'Pembayaran tagihan bulanan dilakukan via QRIS Midtrans.');
         } elseif ($request->filled('perpanjangan_id')) {
             $perpanjangan = Perpanjangan::with('sewa.kamar')->where('user_id', Auth::id())->findOrFail($request->perpanjangan_id);
-            $nominal = $perpanjangan->nominal_dp;
-            $jenis = 'DP Perpanjangan';
+            $isLunas = $perpanjangan->tipe_pembayaran === 'Lunas';
+            $nominal = $isLunas ? $perpanjangan->nominal_total : $perpanjangan->nominal_dp;
+            $jenis = $isLunas ? 'Pelunasan Perpanjangan' : 'DP Perpanjangan';
         } else {
             return redirect()->route('penghuni.dashboard')->with('error', 'Silakan pilih tagihan atau pesanan yang ingin dibayar.');
         }
@@ -67,6 +74,22 @@ class PembayaranController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->jenis_pembayaran === 'Booking Awal' || $request->filled('booking_id')) {
+            return redirect()->route('penghuni.dashboard')
+                ->with('error', 'Pembayaran booking awal dilakukan via QRIS Midtrans dan tidak menerima unggahan bukti transfer manual.');
+        }
+
+        if ($request->jenis_pembayaran === 'Tagihan Bulanan' || $request->filled('tagihan_id')) {
+            $tagihanId = $request->tagihan_id;
+            if ($tagihanId) {
+                return redirect()->route('penghuni.tagihan.bayar', $tagihanId)
+                    ->with('info', 'Pembayaran tagihan bulanan dilakukan via QRIS Midtrans.');
+            }
+
+            return redirect()->route('penghuni.tagihan.index')
+                ->with('error', 'Pembayaran tagihan bulanan dilakukan via QRIS Midtrans.');
+        }
+
         $validated = $request->validate([
             'jenis_pembayaran' => ['required', 'in:Booking Awal,Tagihan Bulanan,DP Perpanjangan,Pelunasan Perpanjangan'],
             'nominal' => ['required', 'numeric', 'min:1000'],
@@ -87,7 +110,7 @@ class PembayaranController extends Controller
         ]);
 
         $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
-        $kodePembayaran = 'PAY-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+        $kodePembayaran = 'PAY-'.date('Ymd').'-'.strtoupper(Str::random(6));
 
         $pembayaran = Pembayaran::create([
             'kode_pembayaran' => $kodePembayaran,
@@ -134,9 +157,21 @@ class PembayaranController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Upload Bukti Pembayaran',
-            'Mengunggah bukti pembayaran ' . $validated['jenis_pembayaran'] . ' sebesar Rp ' . number_format($validated['nominal'], 0, ',', '.') . ' (' . $kodePembayaran . ')',
+            'Mengunggah bukti pembayaran '.$validated['jenis_pembayaran'].' sebesar Rp '.number_format($validated['nominal'], 0, ',', '.').' ('.$kodePembayaran.')',
             'info'
         );
+
+        $notification = new BusinessNotification(
+            'pembayaran',
+            'diunggah',
+            'Bukti pembayaran baru',
+            'Bukti pembayaran '.$kodePembayaran.' menunggu validasi.',
+            'pembayaran:'.$pembayaran->id.':diunggah',
+            ['entity_type' => 'pembayaran', 'entity_id' => $pembayaran->id, 'actor_id' => Auth::id()]
+        );
+
+        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return redirect()->route('penghuni.dashboard')
             ->with('success', 'Bukti pembayaran Anda berhasil diunggah! Mohon menunggu verifikasi dari Pemilik Kost.');

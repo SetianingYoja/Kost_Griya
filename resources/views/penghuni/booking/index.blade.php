@@ -8,9 +8,6 @@
         <h3 class="fw-bold text-secondary mb-1">Riwayat Pemesanan Kamar</h3>
         <p class="text-muted small mb-0">Daftar permohonan booking kamar kost Griya Ayu Anda</p>
     </div>
-    <a href="{{ route('kamar.index') }}" class="btn btn-primary-griya btn-sm">
-        <i class="bi bi-plus-circle me-1"></i> Pesan Kamar Baru
-    </a>
 </div>
 
 <div class="card-griya p-4 mb-4">

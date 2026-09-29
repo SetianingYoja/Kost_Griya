@@ -18,6 +18,7 @@ class Perpanjangan extends Model
         'sewa_id',
         'user_id',
         'durasi_bulan',
+        'tipe_pembayaran',
         'tanggal_mulai_baru',
         'tanggal_selesai_baru',
         'nominal_total',
@@ -54,7 +55,7 @@ class Perpanjangan extends Model
 
     public function dpPembayaran(): HasOne
     {
-        return $this->hasOne(Pembayaran::class)->where('jenis_pembayaran', 'DP Perpanjangan')->latestOfMany();
+        return $this->hasOne(Pembayaran::class)->whereIn('jenis_pembayaran', ['DP Perpanjangan', 'Pelunasan Perpanjangan', 'Lunas Perpanjangan'])->latestOfMany();
     }
 
     public function tagihans(): HasMany

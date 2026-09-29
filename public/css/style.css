@@ -7,7 +7,7 @@
     --brand-light-blue: #EFF6FF;
     --brand-bg: #F8FAFC; /*tumpukan atas*/
     --brand-white: #EFF6FF; /*isi*/
-    --brand-text: #ffefef; /*tulisan menu di sidebar*/
+    --brand-text: #EFF6FF; /*tulisan menu di sidebar*/
     --brand-text-muted: #f0ffef; /*icon dan tulisan utama*/
     --brand-border: #49769f; /*garis*/
     --brand-success: #10B981;
@@ -25,7 +25,7 @@
 body {
     font-family: var(--font-body);
     background-color: var(--brand-bg);
-    color: var(--brand-text);
+    color: #1e293b;
     min-height: 100vh;
     display: flex;
     flex-direction: column;

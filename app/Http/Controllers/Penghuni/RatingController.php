@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Penghuni;
 
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
 use App\Models\Keluhan;
 use App\Models\Rating;
 use App\Models\RiwayatAktivitas;
@@ -21,7 +20,7 @@ class RatingController extends Controller
             ->latest()
             ->first();
 
-        if (!$sewa) {
+        if (! $sewa) {
             return null;
         }
 
@@ -29,7 +28,7 @@ class RatingController extends Controller
         $hasApprovedBooking = $booking && $booking->status === 'Selesai';
         $hasLunasPayment = $booking && $booking->pembayarans()->where('status', 'Lunas')->exists();
 
-        if (!$hasApprovedBooking || !$hasLunasPayment) {
+        if (! $hasApprovedBooking || ! $hasLunasPayment) {
             return null;
         }
 
@@ -65,7 +64,7 @@ class RatingController extends Controller
     {
         $activeSewa = $this->getEligibleActiveSewa();
 
-        if (!$activeSewa) {
+        if (! $activeSewa) {
             return redirect()->route('penghuni.dashboard')
                 ->with('error', 'Anda belum dapat memberi rating. Pastikan booking Anda telah disetujui, pembayaran sudah lunas, dan Anda memiliki sewa aktif.');
         }
@@ -85,7 +84,7 @@ class RatingController extends Controller
     {
         $activeSewa = $this->getEligibleActiveSewa();
 
-        if (!$activeSewa) {
+        if (! $activeSewa) {
             return redirect()->route('penghuni.dashboard')
                 ->with('error', 'Anda belum memenuhi syarat untuk memberi rating. Pastikan booking Anda telah disetujui, pembayaran sudah lunas, dan sewa aktif sudah berjalan.');
         }
@@ -124,12 +123,13 @@ class RatingController extends Controller
             'jenis_rating' => $request->jenis_rating,
             'skor' => $request->skor,
             'komentar' => $request->komentar,
+            'status' => 'Menunggu Validasi',
         ]);
 
         RiwayatAktivitas::catat(
             Auth::id(),
             'Memberikan Rating',
-            'Memberikan penilaian ' . $request->skor . ' bintang untuk ' . $request->jenis_rating,
+            'Memberikan penilaian '.$request->skor.' bintang untuk '.$request->jenis_rating,
             'success'
         );
 

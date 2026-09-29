@@ -48,7 +48,6 @@ class KamarController extends Controller
             'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamar,nomor_kamar'],
             'tipe_kamar_id' => ['required', 'exists:tipe_kamar,id'],
             'lantai' => ['required', 'integer', 'min:1', 'max:10'],
-            'harga' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:Tersedia,Terisi,Tidak tersedia'],
             'fasilitas' => ['nullable', 'string'],
             'deskripsi' => ['nullable', 'string'],
@@ -59,6 +58,8 @@ class KamarController extends Controller
             'tipe_kamar_id.required' => 'Tipe kamar wajib dipilih.',
         ]);
 
+        $tipeKamar = TipeKamar::findOrFail($validated['tipe_kamar_id']);
+
         $path = null;
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('kamar', 'public');
@@ -68,7 +69,7 @@ class KamarController extends Controller
             'nomor_kamar' => $validated['nomor_kamar'],
             'tipe_kamar_id' => $validated['tipe_kamar_id'],
             'lantai' => $validated['lantai'],
-            'harga' => $validated['harga'],
+            'harga' => $tipeKamar->harga_bulanan,
             'status' => $validated['status'],
             'fasilitas' => $validated['fasilitas'],
             'deskripsi' => $validated['deskripsi'],

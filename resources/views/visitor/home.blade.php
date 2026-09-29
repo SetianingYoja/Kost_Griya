@@ -42,8 +42,8 @@
             <div class="col-lg-5">
                 <div class="position-relative">
                     <div class="card-griya border-0 shadow-lg overflow-hidden">
-                        <div class="room-img-wrapper" style="height: 340px;">
-                            <img src="{{ asset('images/kamar-default.svg') }}" alt="Griya Ayu Interior" class="img-fluid w-100 h-100">
+                        <div class="room-img-wrapper d-flex align-items-center justify-content-center" style="height: 340px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 50%, #BFDBFE 100%);">
+                            <img src="{{ asset('images/logo-griya-ayu.svg') }}" alt="Logo Griya Ayu" style="width: 72%; max-width: 300px; height: auto; display: block; filter: drop-shadow(0 8px 24px rgba(37,99,235,0.18));">
                         </div>
                         <div class="p-4 bg-white">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -56,6 +56,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </section>
@@ -229,6 +230,14 @@
                             </div>
                         </div>
                         <p class="text-muted small mb-0">{{ $rating->komentar ?: 'Penghuni menyukai kenyamanan dan layanan kost ini.' }}</p>
+                        @if($rating->balasan)
+                            <div class="mt-3 p-2 bg-light rounded-3 border-start border-3 border-primary small">
+                                <span class="fw-semibold text-primary d-block mb-1" style="font-size: 0.775rem;">
+                                    <i class="bi bi-reply-fill me-1"></i>Respon Pemilik Kost:
+                                </span>
+                                <p class="text-muted small mb-0">{{ $rating->balasan }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @empty
