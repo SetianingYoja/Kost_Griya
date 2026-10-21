@@ -15,6 +15,7 @@ class EnsureUserIsActive
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect()->route('login')->with('error', 'Akun Anda dinonaktifkan. Silakan hubungi pengelola kost.');
         }
 

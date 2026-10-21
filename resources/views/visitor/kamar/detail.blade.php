@@ -168,6 +168,8 @@
                     <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}" style="top: 20px; right: 20px; font-size: 0.9rem; padding: 0.5rem 1rem;">
                         @if($kamar->status === 'Tersedia')
                             <i class="bi bi-check-circle-fill me-1"></i> Tersedia untuk Dipesan
+                        @elseif($kamar->status === 'Sedang Diproses')
+                            <i class="bi bi-clock-history me-1"></i> Sedang Diproses Booking
                         @elseif($kamar->status === 'Terisi')
                             <i class="bi bi-x-circle-fill me-1"></i> Sedang Terisi
                         @else
@@ -378,8 +380,12 @@
                         <span class="text-muted small">Status Kamar:</span>
                         @if($kamar->status === 'Tersedia')
                             <span class="badge bg-success">Tersedia</span>
+                        @elseif($kamar->status === 'Sedang Diproses')
+                            <span class="badge bg-warning text-dark">Sedang Diproses</span>
+                        @elseif($kamar->status === 'Terisi')
+                            <span class="badge bg-danger">Terisi</span>
                         @else
-                            <span class="badge bg-danger">{{ $kamar->status }}</span>
+                            <span class="badge bg-secondary">{{ $kamar->status }}</span>
                         @endif
                     </div>
                 </div>
@@ -442,9 +448,9 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-primary-griya w-100 py-3 fw-semibold">
-                                    <i class="bi bi-calendar-check me-2"></i> Ajukan Booking Kamar
+                                    <i class="bi bi-credit-card me-2"></i> Lanjut ke Pembayaran QRIS
                                 </button>
-                                <p class="small text-muted text-center mt-2 mb-0">Permohonan booking akan divalidasi oleh Pemilik Kost.</p>
+                                <p class="small text-muted text-center mt-2 mb-0">Setelah konfirmasi pemesanan, Anda langsung diarahkan ke pembayaran QRIS.</p>
 
                                 <script>
                                 (function() {
@@ -501,9 +507,15 @@
                         </div>
                     @endauth
                 @else
-                    <div class="alert alert-warning mb-3">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Kamar ini sedang <strong>{{ $kamar->status }}</strong> dan tidak dapat dibooking saat ini.
-                    </div>
+                    @if($kamar->status === 'Sedang Diproses')
+                        <div class="alert alert-warning mb-3">
+                            <i class="bi bi-clock-history me-1"></i> Kamar ini <strong>Sedang Diproses Booking</strong> oleh calon penghuni lain.
+                        </div>
+                    @else
+                        <div class="alert alert-warning mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Kamar ini sedang <strong>{{ $kamar->status }}</strong> dan tidak dapat dibooking saat ini.
+                        </div>
+                    @endif
                     <a href="{{ route('kamar.index') }}" class="btn btn-outline-griya w-100">
                         <i class="bi bi-search me-1"></i> Cari Kamar Tersedia Lainnya
                     </a>

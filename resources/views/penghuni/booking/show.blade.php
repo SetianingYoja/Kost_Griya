@@ -53,8 +53,8 @@
                 </div>
             @endif
 
-             @if(in_array($booking->status, ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran']))
-                <form action="{{ route('penghuni.booking.cancel', $booking->id) }}" method="POST">
+             @if(in_array($booking->status, ['Menunggu Pembayaran', 'Menunggu Validasi']))
+                <form action="{{ route('penghuni.booking.cancel', $booking->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pemesanan ini?')">
                 @csrf
                 @method('PATCH')
                 <button type="submit" class="btn btn-outline-danger btn-sm">
@@ -69,7 +69,7 @@
         <div class="card-griya p-4">
             <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 text-primary me-2"></i>Status Pembayaran</h5>
             @if($booking->status === 'Menunggu Pembayaran')
-                <p class="small text-muted mb-3">Booking Anda menunggu pembayaran DP via QRIS. Silakan selesaikan pembayaran sebelum batas waktu habis.</p>
+                <p class="small text-muted mb-3">Booking Anda menunggu pembayaran {{ $booking->tipe_pembayaran === 'Lunas' ? 'LUNAS' : 'DP' }} via QRIS. Silakan selesaikan pembayaran sebelum batas waktu habis.</p>
                 <a href="{{ route('penghuni.booking.bayar', $booking->id) }}" class="btn btn-primary-griya w-100 mb-2">
                     <i class="bi bi-qr-code-scan me-1"></i> Bayar QRIS Sekarang
                 </a>

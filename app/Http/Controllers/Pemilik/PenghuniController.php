@@ -18,15 +18,15 @@ class PenghuniController extends Controller
             $penghunis = User::whereHas('sewas', function ($q) {
                 $q->where('status', 'Aktif');
             })->with(['activeSewa.kamar.tipeKamar'])
-              ->latest()
-              ->paginate(10);
+                ->latest()
+                ->paginate(10);
         } else {
             // Seluruh pengguna dengan role penghuni (termasuk alumni / calon)
             $penghunis = User::whereHas('role', function ($q) {
                 $q->where('slug', 'penghuni');
             })->with(['activeSewa.kamar', 'sewas'])
-              ->latest()
-              ->paginate(10);
+                ->latest()
+                ->paginate(10);
         }
 
         return view('pemilik.penghuni.index', compact('penghunis', 'status'));
@@ -42,7 +42,7 @@ class PenghuniController extends Controller
             'tagihans.kamar',
             'keluhans.kamar',
             'ratings',
-            'riwayatAktivitas'
+            'riwayatAktivitas',
         ])->findOrFail($id);
 
         return view('pemilik.penghuni.show', compact('penghuni'));

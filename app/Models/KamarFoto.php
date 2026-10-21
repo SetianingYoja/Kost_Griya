@@ -31,8 +31,8 @@ class KamarFoto extends Model
 
     public function getFotoUrlAttribute(): ?string
     {
-        if ($this->foto && file_exists(public_path('storage/' . $this->foto))) {
-            return asset('storage/' . $this->foto);
+        if ($this->foto && file_exists(public_path('storage/'.$this->foto))) {
+            return asset('storage/'.$this->foto);
         }
 
         return null;

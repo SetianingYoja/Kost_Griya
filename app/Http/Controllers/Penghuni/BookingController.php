@@ -76,16 +76,20 @@ class BookingController extends Controller
             'tipe_pembayaran.in' => 'Tipe pembayaran tidak valid.',
         ]);
 
-        $kamar = Kamar::findOrFail($request->kamar_id);
-
-        if ($kamar->status !== 'Tersedia') {
-            return back()->with('error', 'Kamar yang Anda pilih saat ini sedang '.$kamar->status.' dan tidak dapat dibooking.');
-        }
-
         $blockedMessage = null;
 
         try {
-            $booking = DB::transaction(function () use ($request, $kamar, &$blockedMessage) {
+            $booking = DB::transaction(function () use ($request, &$blockedMessage) {
+                // 1. Terapkan lockForUpdate() pada baris kamar sebelum memeriksa ketersediaan
+                $kamar = Kamar::lockForUpdate()->findOrFail($request->kamar_id);
+
+                if (! $kamar->isAvailableForBooking()) {
+                    $blockedMessage = 'Kamar '.$kamar->nomor_kamar.' saat ini sedang '.$kamar->status.' dan tidak dapat dibooking.';
+
+                    return null;
+                }
+
+                // 2. Lock user untuk validasi integritas akun penghuni
                 $user = Auth::user()->newQuery()->lockForUpdate()->findOrFail(Auth::id());
 
                 $activeSewa = Sewa::where('user_id', $user->id)
@@ -100,7 +104,11 @@ class BookingController extends Controller
                 }
 
                 $existingBooking = Booking::where('user_id', $user->id)
-                    ->whereIn('status', ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran'])
+                    ->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi'])
+                    ->where(function ($q) {
+                        $q->whereNull('batas_pembayaran')
+                            ->orWhere('batas_pembayaran', '>', Carbon::now());
+                    })
                     ->latest()
                     ->first();
 
@@ -124,23 +132,18 @@ class BookingController extends Controller
                 $tipePembayaran = $request->tipe_pembayaran; // 'DP' atau 'Lunas'
                 $totalHarga = $kamar->harga * $request->durasi_bulan;
 
-                // Hitung nominal QRIS berdasarkan tipe pembayaran:
-                // DP  = 30% dari harga 1 bulan
-                // Lunas = harga per bulan × durasi
                 if ($tipePembayaran === 'Lunas') {
                     $nominalQris = (int) $totalHarga;
-                    $nominalDp = 0; // tidak ada DP untuk tipe Lunas
+                    $nominalDp = 0;
                 } else {
-                    // DP: 30% dari harga 1 bulan
                     $nominalQris = (int) floor($kamar->harga * 0.30);
                     $nominalDp = $nominalQris;
                 }
 
                 $kodeBooking = 'BKG-'.date('Ymd').'-'.strtoupper(Str::random(5));
-                $batasPembayaran = Carbon::now()->addMinutes(60);
-                $orderId = 'QRIS-'.$kodeBooking.'-'.time();
+                $batasPembayaran = Carbon::now()->addMinutes(15);
 
-                // Buat record booking tanpa QRIS karena masih menunggu validasi pemilik
+                // Buat record booking langsung berstatus 'Menunggu Pembayaran' (tanpa perlu approval pemilik)
                 $booking = Booking::create([
                     'kode_booking' => $kodeBooking,
                     'user_id' => $user->id,
@@ -151,13 +154,17 @@ class BookingController extends Controller
                     'total_harga' => $totalHarga,
                     'nominal_dp' => $nominalDp,
                     'catatan' => $request->catatan,
-                    'status' => 'Menunggu Validasi',
+                    'status' => 'Menunggu Pembayaran',
                     'batas_pembayaran' => $batasPembayaran,
                 ]);
 
+                // Set status kamar menjadi 'Sedang Diproses' agar tidak dapat dibooking pengguna lain
+                $kamar->status = 'Sedang Diproses';
+                $kamar->save();
+
                 $catatanRiwayat = $tipePembayaran === 'Lunas'
-                    ? 'Mengajukan booking untuk '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan pembayaran LUNAS via QRIS.'
-                    : 'Mengajukan booking untuk '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan DP QRIS.';
+                    ? 'Membuat booking untuk kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan pembayaran LUNAS via QRIS.'
+                    : 'Membuat booking untuk kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan DP QRIS.';
 
                 RiwayatAktivitas::catat(
                     $user->id,
@@ -166,31 +173,37 @@ class BookingController extends Controller
                     'info'
                 );
 
+                $notification = new BusinessNotification(
+                    'booking',
+                    'menunggu_pembayaran',
+                    'Booking Baru Menunggu Pembayaran',
+                    'Calon penghuni '.$user->name.' telah membuat booking kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dan diarahkan ke pembayaran QRIS.',
+                    'booking:'.$booking->id.':menunggu_pembayaran',
+                    ['entity_type' => 'booking', 'entity_id' => $booking->id, 'actor_id' => $user->id]
+                );
+
+                $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, $user->id);
+                $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, $user->id);
+
                 return $booking;
             });
         } catch (\Throwable $e) {
-            Log::error('Gagal membuat transaksi booking Midtrans Snap Token', [
+            Log::error('Gagal membuat booking kamar', [
                 'user_id' => Auth::id(),
                 'kamar_id' => $request->kamar_id,
                 'error' => $e->getMessage(),
             ]);
 
-            $errorMessage = $blockedMessage ?? 'Gagal membuat transaksi pembayaran QRIS Midtrans. Silakan coba beberapa saat lagi.';
-
-            return redirect()->route('penghuni.dashboard')->with('error', $errorMessage);
+            return back()->with('error', $blockedMessage ?? 'Gagal membuat permohonan booking. Silakan coba beberapa saat lagi.');
         }
 
         if (! $booking) {
-            return redirect()->route('penghuni.dashboard')->with('error', $blockedMessage);
+            return back()->with('error', $blockedMessage);
         }
 
-        $pesanSukses = $booking->tipe_pembayaran === 'Lunas'
-            ? 'Booking kamar '.$kamar->nomor_kamar.' berhasil dibuat! Silakan lakukan pembayaran LUNAS via QRIS dalam waktu 60 menit.'
-            : 'Booking kamar '.$kamar->nomor_kamar.' berhasil dibuat! Silakan lakukan pembayaran DP via QRIS dalam waktu 60 menit.';
-
-        // Redirect to booking detail page with message that booking is awaiting validation
-        return redirect()->route('penghuni.booking.show', $booking->id)
-            ->with('success', 'Booking berhasil dibuat dan menunggu validasi oleh Pemilik Kost.');
+        // Langsung arahkan ke halaman pembayaran QRIS Midtrans
+        return redirect()->route('penghuni.booking.bayar', $booking->id)
+            ->with('success', 'Booking berhasil dibuat! Silakan selesaikan pembayaran '.($booking->tipe_pembayaran === 'Lunas' ? 'Lunas' : 'DP').' via QRIS dalam waktu 60 menit.');
     }
 
     public function show($id)
@@ -202,7 +215,7 @@ class BookingController extends Controller
 
     public function showBayar($id)
     {
-        $booking = Booking::with(['kamar.tipeKamar'])
+        $booking = Booking::with(['kamar.tipeKamar', 'user'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
@@ -213,19 +226,33 @@ class BookingController extends Controller
 
         // Check expiration
         if ($booking->batas_pembayaran && Carbon::now()->gt($booking->batas_pembayaran)) {
-            $booking->status = 'Kadaluarsa';
-            $booking->save();
+            DB::transaction(function () use ($booking) {
+                $b = Booking::lockForUpdate()->find($booking->id);
+                if ($b && $b->status === 'Menunggu Pembayaran') {
+                    $hasPayment = $b->pembayarans()
+                        ->whereIn('status', ['Menunggu Validasi', 'Lunas'])
+                        ->exists();
+
+                    if (! $hasPayment && ! in_array($b->midtrans_status, ['settlement', 'capture'], true)) {
+                        $b->status = 'Kadaluarsa';
+                        $b->save();
+
+                        $kamar = Kamar::lockForUpdate()->find($b->kamar_id);
+                        if ($kamar) {
+                            $kamar->releaseIfAvailable($b->id);
+                        }
+                    }
+                }
+            });
 
             return redirect()->route('penghuni.booking.show', $booking->id)
                 ->with('error', 'Waktu pembayaran QRIS untuk booking ini telah kedaluwarsa.');
         }
 
-        // Ensure Midtrans token exists after approval
+        // Generate Midtrans Snap token jika belum ada
         if (empty($booking->midtrans_snap_token) || empty($booking->midtrans_order_id)) {
-            // Generate order ID if not present
             $orderId = $booking->midtrans_order_id ?? 'QRIS-'.$booking->kode_booking.'-'.time();
-            // Determine nominal amount based on tipe pembayaran
-            $nominal = $booking->tipe_pembayaran === 'Lunas' ? $booking->total_harga : $booking->nominal_dp;
+            $nominal = $booking->tipe_pembayaran === 'Lunas' ? (int) $booking->total_harga : (int) $booking->nominal_dp;
             $customerDetails = [
                 'first_name' => $booking->user->name ?? '',
                 'email' => $booking->user->email ?? '',
@@ -248,7 +275,6 @@ class BookingController extends Controller
                 ]];
             }
             $snapToken = $this->midtransService->createSnapToken($orderId, $nominal, $customerDetails, $itemDetails);
-            // Save token and order info
             $booking->midtrans_order_id = $orderId;
             $booking->midtrans_snap_token = $snapToken;
             $booking->midtrans_status = 'pending';
@@ -260,19 +286,50 @@ class BookingController extends Controller
 
     public function cancel($id)
     {
-        $booking = Booking::where('user_id', Auth::id())->findOrFail($id);
+        $blockedMessage = null;
 
-        if (! in_array($booking->status, ['Menunggu Validasi', 'Disetujui', 'Menunggu Pembayaran'])) {
-            return back()->with('error', 'Pemesanan dengan status ini tidak dapat dibatalkan.');
+        $cancelled = DB::transaction(function () use ($id, &$blockedMessage) {
+            $booking = Booking::with('kamar')
+                ->where('user_id', Auth::id())
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            if (! in_array($booking->status, ['Menunggu Pembayaran', 'Menunggu Validasi'], true)) {
+                $blockedMessage = 'Pemesanan dengan status ini tidak dapat dibatalkan.';
+
+                return null;
+            }
+
+            // Pastikan tidak membatalkan booking yang sudah memiliki pembayaran valid/settlement
+            $hasPayment = $booking->pembayarans()
+                ->whereIn('status', ['Menunggu Validasi', 'Lunas'])
+                ->exists();
+
+            if ($hasPayment || in_array($booking->midtrans_status, ['settlement', 'capture'], true)) {
+                $blockedMessage = 'Pemesanan yang telah memiliki pembayaran tidak dapat dibatalkan.';
+
+                return null;
+            }
+
+            $booking->status = 'Dibatalkan';
+            $booking->save();
+
+            $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+            if ($kamar) {
+                $kamar->releaseIfAvailable($booking->id);
+            }
+
+            return $booking;
+        });
+
+        if (! $cancelled) {
+            return back()->with('error', $blockedMessage ?? 'Gagal membatalkan pemesanan.');
         }
-
-        $booking->status = 'Dibatalkan';
-        $booking->save();
 
         RiwayatAktivitas::catat(
             Auth::id(),
             'Booking Dibatalkan',
-            'Membatalkan pemesanan kamar '.$booking->kamar->nomor_kamar.' ('.$booking->kode_booking.')',
+            'Membatalkan pemesanan kamar '.($cancelled->kamar->nomor_kamar ?? '-').' ('.$cancelled->kode_booking.')',
             'warning'
         );
 
@@ -280,9 +337,9 @@ class BookingController extends Controller
             'booking',
             'dibatalkan',
             'Booking dibatalkan',
-            'Booking '.$booking->kode_booking.' dibatalkan oleh penghuni.',
-            'booking:'.$booking->id.':dibatalkan',
-            ['entity_type' => 'booking', 'entity_id' => $booking->id, 'actor_id' => Auth::id()]
+            'Booking '.$cancelled->kode_booking.' dibatalkan oleh penghuni.',
+            'booking:'.$cancelled->id.':dibatalkan',
+            ['entity_type' => 'booking', 'entity_id' => $cancelled->id, 'actor_id' => Auth::id()]
         );
 
         $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());

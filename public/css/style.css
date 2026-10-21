@@ -1,15 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-    --brand-primary: #172554; /*tetap (menu sidebar)*/
-    --brand-primary-hover: #005d7a; /*button*/
+    --brand-primary: #172554;
+    /*tetap (menu sidebar)*/
+    --brand-primary-hover: #005d7a;
+    /*button*/
     --brand-secondary: #172554;
     --brand-light-blue: #EFF6FF;
-    --brand-bg: #F8FAFC; /*tumpukan atas*/
-    --brand-white: #EFF6FF; /*isi*/
-    --brand-text: #EFF6FF; /*tulisan menu di sidebar*/
-    --brand-text-muted: #f0ffef; /*icon dan tulisan utama*/
-    --brand-border: #49769f; /*garis*/
+    --brand-bg: #F8FAFC;
+    /*tumpukan atas*/
+    --brand-white: #EFF6FF;
+    /*isi*/
+    --brand-text: #EFF6FF;
+    /*tulisan menu di sidebar*/
+    --brand-text-muted: #f0ffef;
+    /*icon dan tulisan utama*/
+    --brand-border: #49769f;
+    /*garis*/
     --brand-success: #10B981;
     --brand-warning: #F59E0B;
     --brand-danger: #EF4444;
@@ -31,7 +38,10 @@ body {
     flex-direction: column;
 }
 
-h1, h2, h3, .heading-serif {
+h1,
+h2,
+h3,
+.heading-serif {
     font-family: var(--font-heading);
     color: #172554;
     letter-spacing: -0.01em;
@@ -68,7 +78,8 @@ h1, h2, h3, .heading-serif {
     transition: color 0.2s ease;
 }
 
-.nav-link-griya:hover, .nav-link-griya.active {
+.nav-link-griya:hover,
+.nav-link-griya.active {
     color: var(--brand-primary);
 }
 
@@ -172,6 +183,11 @@ h1, h2, h3, .heading-serif {
 
 .status-tersedia {
     background-color: rgba(16, 185, 129, 0.9);
+    color: white;
+}
+
+.status-sedang-diproses {
+    background-color: rgba(245, 158, 11, 0.95);
     color: white;
 }
 

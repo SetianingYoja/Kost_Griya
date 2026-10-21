@@ -10,19 +10,20 @@ use App\Models\Pembayaran;
 use App\Models\Rating;
 use App\Models\Sewa;
 use App\Models\Tagihan;
-use App\Models\User;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        // Pastikan relasi booking berstatus Aktif terhubung dengan benar
+        Booking::ensureActiveBookingIntegrity();
+
         // Statistik Operasional (PRD Section 16)
         $totalKamar = Kamar::count();
         $kamarTersedia = Kamar::where('status', 'Tersedia')->count();
         $kamarTerisi = Kamar::where('status', 'Terisi')->count();
         $totalPenghuniAktif = Sewa::where('status', 'Aktif')->distinct('user_id')->count('user_id');
-        
+
         $bookingMenunggu = Booking::where('status', 'Menunggu Validasi')->count();
         $pembayaranMenunggu = Pembayaran::where('status', 'Menunggu Validasi')->count();
         $tagihanBelumLunas = Tagihan::whereIn('status', ['Belum Dibayar', 'Terlambat'])->count();

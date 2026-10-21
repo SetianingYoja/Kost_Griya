@@ -8,10 +8,8 @@ use App\Models\Keluhan;
 use App\Models\KostInfo;
 use App\Models\Pembayaran;
 use App\Models\Perpanjangan;
-use App\Models\Rating;
 use App\Models\Sewa;
 use App\Models\Tagihan;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -20,6 +18,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $kostInfo = KostInfo::first();
+
+        // Pastikan relasi booking berstatus Aktif terhubung dengan benar
+        Booking::ensureActiveBookingIntegrity();
 
         // 1. Cek apakah memiliki sewa aktif
         $activeSewa = Sewa::with(['kamar.tipeKamar'])
@@ -47,6 +48,8 @@ class DashboardController extends Controller
                 $state = 'menunggu_pembayaran';
             } elseif ($activeBooking->status === 'Ditolak') {
                 $state = 'booking_ditolak';
+            } elseif ($activeBooking->status === 'Aktif') {
+                $state = 'aktif_menyewa';
             }
         } else {
             // Cek apakah pernah sewa tapi sudah berakhir

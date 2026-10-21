@@ -32,8 +32,8 @@ class UserController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -46,6 +46,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::all();
+
         return view('admin.users.create', compact('roles'));
     }
 
@@ -72,12 +73,12 @@ class UserController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Buat User Baru',
-            'Super Admin membuat user baru: ' . $user->name . ' (' . $user->email . ') dengan role ' . $user->role->name,
+            'Super Admin membuat user baru: '.$user->name.' ('.$user->email.') dengan role '.$user->role->name,
             'info'
         );
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User ' . $user->name . ' berhasil ditambahkan ke sistem.');
+            ->with('success', 'User '.$user->name.' berhasil ditambahkan ke sistem.');
     }
 
     public function edit($id)
@@ -95,7 +96,7 @@ class UserController extends Controller
         $request->validate([
             'role_id' => ['required', 'exists:roles,id'],
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email,'.$user->id],
             'phone' => ['required', 'string', 'max:25'],
             'status' => ['required', 'in:Aktif,Nonaktif'],
             'password' => ['nullable', Password::min(8)],
@@ -116,12 +117,12 @@ class UserController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Update Data User',
-            'Super Admin memperbarui data user: ' . $user->name,
+            'Super Admin memperbarui data user: '.$user->name,
             'info'
         );
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Data user ' . $user->name . ' berhasil diperbarui.');
+            ->with('success', 'Data user '.$user->name.' berhasil diperbarui.');
     }
 
     public function toggleStatus($id)
@@ -138,11 +139,11 @@ class UserController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Ubah Status Akun',
-            'Status akun ' . $user->name . ' diubah menjadi ' . $user->status,
+            'Status akun '.$user->name.' diubah menjadi '.$user->status,
             'warning'
         );
 
-        return back()->with('success', 'Status user ' . $user->name . ' berhasil diubah menjadi ' . $user->status . '.');
+        return back()->with('success', 'Status user '.$user->name.' berhasil diubah menjadi '.$user->status.'.');
     }
 
     public function destroy($id)
@@ -163,11 +164,11 @@ class UserController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Hapus User',
-            'Super Admin menghapus akun: ' . $userName,
+            'Super Admin menghapus akun: '.$userName,
             'danger'
         );
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User ' . $userName . ' berhasil dihapus dari sistem.');
+            ->with('success', 'User '.$userName.' berhasil dihapus dari sistem.');
     }
 }

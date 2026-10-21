@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 class Sewa extends Model
 {
@@ -61,6 +61,7 @@ class Sewa extends Model
         if ($this->tanggal_selesai->isPast()) {
             return 0;
         }
+
         return $today->diffInDays($this->tanggal_selesai, false);
     }
 }

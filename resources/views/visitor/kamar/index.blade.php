@@ -13,8 +13,18 @@
 
         <!-- Filter & Search Bar -->
         <div class="card-griya p-3 p-md-4 mb-4">
-            <form action="{{ route('kamar.index') }}" method="GET" class="row g-3 align-items-end">
-                <div class="col-lg-4 col-md-6">
+    <style>
+        @media (min-width: 992px) {
+            .filter-grid {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 1rem;
+                align-items: end;
+            }
+        }
+    </style>
+            <form action="{{ route('kamar.index') }}" method="GET" class="filter-grid">
+                <div class="filter-item">
                     <label class="form-label small fw-semibold text-secondary">Cari Kamar / Fasilitas</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
@@ -22,7 +32,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
+                <div class="filter-item">
                     <label class="form-label small fw-semibold text-secondary">Tipe Kamar</label>
                     <select name="tipe" class="form-select bg-light">
                         <option value="">Semua Tipe</option>
@@ -33,27 +43,38 @@
                         @endforeach
                     </select>
                 </div>
-
-                <div class="col-lg-2 col-md-6">
+                <div class="filter-item">
                     <label class="form-label small fw-semibold text-secondary">Status Ketersediaan</label>
                     <select name="status" class="form-select bg-light">
                         <option value="">Semua Status</option>
                         <option value="Tersedia" {{ request('status') == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                        <option value="Sedang Diproses" {{ request('status') == 'Sedang Diproses' ? 'selected' : '' }}>Sedang Diproses</option>
                         <option value="Terisi" {{ request('status') == 'Terisi' ? 'selected' : '' }}>Terisi</option>
                         <option value="Tidak tersedia" {{ request('status') == 'Tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
                     </select>
                 </div>
 
-                <div class="col-lg-3 col-md-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary-griya flex-grow-1">
-                        <i class="bi bi-funnel me-1"></i> Terapkan Filter
-                    </button>
-                    @if(request()->anyFilled(['q', 'tipe', 'status', 'lantai']))
-                        <a href="{{ route('kamar.index') }}" class="btn btn-light border text-muted">
-                            <i class="bi bi-arrow-counterclockwise"></i> Reset
-                        </a>
-                    @endif
+                <div class="filter-item">
+                    <label class="form-label small fw-semibold text-secondary">Tanggal Mulai Sewa</label>
+                    <input type="date" name="start_date" class="form-control bg-light" value="{{ request('start_date') }}">
                 </div>
+                <div class="filter-item">
+                    <label class="form-label small fw-semibold text-secondary">Tanggal Selesai Sewa</label>
+                    <input type="date" name="end_date" class="form-control bg-light" value="{{ request('end_date') }}">
+                </div>
+
+
+            <div class="filter-item d-flex gap-2">
+                <button type="submit" class="btn btn-primary-griya flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i> Terapkan Filter
+                </button>
+                @if(request()->anyFilled(['q', 'tipe', 'status', 'lantai', 'start_date', 'end_date']))
+                    <a href="{{ route('kamar.index') }}" class="btn btn-light border text-muted">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                @endif
+            </div>
+
             </form>
         </div>
 
@@ -67,6 +88,8 @@
                             <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
                                 @if($kamar->status === 'Tersedia')
                                     <i class="bi bi-check-circle-fill me-1"></i> Tersedia
+                                @elseif($kamar->status === 'Sedang Diproses')
+                                    <i class="bi bi-clock-history me-1"></i> Sedang Diproses
                                 @elseif($kamar->status === 'Terisi')
                                     <i class="bi bi-x-circle-fill me-1"></i> Terisi
                                 @else

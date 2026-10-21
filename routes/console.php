@@ -11,3 +11,13 @@ Artisan::command('inspire', function () {
 Schedule::command('notifications:process-reminders')
     ->dailyAt('00:05')
     ->timezone('Asia/Jakarta');
+
+// Generate monthly invoices for approved lease extensions
+Schedule::command('perpanjangan:generate-tagihan')
+    ->dailyAt('01:00')
+    ->timezone('Asia/Jakarta');
+
+// Expire unpaid bookings past payment deadline
+Schedule::command('bookings:expire')
+    ->dailyAt('02:00')
+    ->timezone('Asia/Jakarta');

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Kamar;
 use App\Models\TipeKamar;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class KamarController extends Controller
 {
@@ -26,7 +25,7 @@ class KamarController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('nomor_kamar', 'like', "%{$search}%")
-                  ->orWhere('fasilitas', 'like', "%{$search}%");
+                    ->orWhere('fasilitas', 'like', "%{$search}%");
             });
         }
 
@@ -39,6 +38,7 @@ class KamarController extends Controller
     public function create()
     {
         $tipeKamars = TipeKamar::all();
+
         return view('pemilik.kamar.create', compact('tipeKamars'));
     }
 
@@ -48,7 +48,7 @@ class KamarController extends Controller
             'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamar,nomor_kamar'],
             'tipe_kamar_id' => ['required', 'exists:tipe_kamar,id'],
             'lantai' => ['required', 'integer', 'min:1', 'max:10'],
-            'status' => ['required', 'in:Tersedia,Terisi,Tidak tersedia'],
+            'status' => ['required', 'in:Tersedia,Sedang Diproses,Terisi,Tidak tersedia'],
             'fasilitas' => ['nullable', 'string'],
             'deskripsi' => ['nullable', 'string'],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:3072'],
@@ -97,12 +97,13 @@ class KamarController extends Controller
         }
 
         return redirect()->route('pemilik.kamar.index')
-            ->with('success', 'Data kamar ' . $validated['nomor_kamar'] . ' berhasil ditambahkan.');
+            ->with('success', 'Data kamar '.$validated['nomor_kamar'].' berhasil ditambahkan.');
     }
 
     public function show($id)
     {
         $kamar = Kamar::with(['tipeKamar', 'sewas.user', 'bookings.user', 'keluhans'])->findOrFail($id);
+
         return view('pemilik.kamar.show', compact('kamar'));
     }
 
@@ -110,6 +111,7 @@ class KamarController extends Controller
     {
         $kamar = Kamar::findOrFail($id);
         $tipeKamars = TipeKamar::all();
+
         return view('pemilik.kamar.edit', compact('kamar', 'tipeKamars'));
     }
 
@@ -118,11 +120,11 @@ class KamarController extends Controller
         $kamar = Kamar::findOrFail($id);
 
         $validated = $request->validate([
-            'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamar,nomor_kamar,' . $kamar->id],
+            'nomor_kamar' => ['required', 'string', 'max:50', 'unique:kamar,nomor_kamar,'.$kamar->id],
             'tipe_kamar_id' => ['required', 'exists:tipe_kamar,id'],
             'lantai' => ['required', 'integer', 'min:1', 'max:10'],
             'harga' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'in:Tersedia,Terisi,Tidak tersedia'],
+            'status' => ['required', 'in:Tersedia,Sedang Diproses,Terisi,Tidak tersedia'],
             'fasilitas' => ['nullable', 'string'],
             'deskripsi' => ['nullable', 'string'],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:3072'],
@@ -144,7 +146,7 @@ class KamarController extends Controller
         $kamar->save();
 
         $galleryFiles = $request->file('fotos', []);
-        if (!empty($galleryFiles)) {
+        if (! empty($galleryFiles)) {
             $order = 0;
             foreach ($galleryFiles as $galleryFile) {
                 if ($galleryFile && $galleryFile->isValid()) {
@@ -159,7 +161,7 @@ class KamarController extends Controller
         }
 
         return redirect()->route('pemilik.kamar.index')
-            ->with('success', 'Data kamar ' . $kamar->nomor_kamar . ' berhasil diperbarui.');
+            ->with('success', 'Data kamar '.$kamar->nomor_kamar.' berhasil diperbarui.');
     }
 
     public function destroy($id)
@@ -175,6 +177,6 @@ class KamarController extends Controller
         $kamar->delete();
 
         return redirect()->route('pemilik.kamar.index')
-            ->with('success', 'Kamar ' . $nomor . ' berhasil dihapus.');
+            ->with('success', 'Kamar '.$nomor.' berhasil dihapus.');
     }
 }

@@ -24,6 +24,8 @@ class PembayaranController extends Controller
 
     public function index(Request $request)
     {
+        Booking::ensureActiveBookingIntegrity();
+
         $status = $request->query('status');
         $jenis = $request->query('jenis');
         $fromDate = $request->query('from_date');

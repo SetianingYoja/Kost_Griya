@@ -24,7 +24,7 @@ return new class extends Migration
                 'Menunggu Pembayaran DP',
                 'DP Dibayar',
                 'Aktif',
-                'Ditolak'
+                'Ditolak',
             ])->default('Menunggu Validasi');
             $table->text('catatan')->nullable();
             $table->text('alasan_penolakan')->nullable();
@@ -48,7 +48,7 @@ return new class extends Migration
                 'Belum Dibayar',
                 'Menunggu Validasi',
                 'Lunas',
-                'Terlambat'
+                'Terlambat',
             ])->default('Belum Dibayar');
             $table->timestamps();
         });

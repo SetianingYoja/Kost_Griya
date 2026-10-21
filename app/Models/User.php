@@ -132,7 +132,7 @@ class User extends Authenticatable
             return true;
         }
 
-        if (!$this->role) {
+        if (! $this->role) {
             return false;
         }
 

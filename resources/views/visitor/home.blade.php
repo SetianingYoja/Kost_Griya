@@ -86,6 +86,8 @@
                             <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
                                 @if($kamar->status === 'Tersedia')
                                     <i class="bi bi-check-circle-fill me-1"></i> Tersedia
+                                @elseif($kamar->status === 'Sedang Diproses')
+                                    <i class="bi bi-clock-history me-1"></i> Sedang Diproses
                                 @elseif($kamar->status === 'Terisi')
                                     <i class="bi bi-x-circle-fill me-1"></i> Terisi
                                 @else

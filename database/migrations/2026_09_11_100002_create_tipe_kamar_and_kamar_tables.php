@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('fasilitas')->nullable();
             $table->text('deskripsi')->nullable();
             $table->string('foto')->nullable();
-            $table->enum('status', ['Tersedia', 'Terisi', 'Tidak tersedia'])->default('Tersedia');
+            $table->enum('status', ['Tersedia', 'Sedang Diproses', 'Terisi', 'Tidak tersedia'])->default('Tersedia');
             $table->timestamps();
         });
     }

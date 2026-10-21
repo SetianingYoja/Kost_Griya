@@ -19,7 +19,7 @@ return new class extends Migration
                 'Booking Awal',
                 'Tagihan Bulanan',
                 'DP Perpanjangan',
-                'Pelunasan Perpanjangan'
+                'Pelunasan Perpanjangan',
             ]);
             $table->decimal('nominal', 12, 2);
             $table->string('metode_pembayaran')->default('Transfer Bank');
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->enum('status', [
                 'Menunggu Validasi',
                 'Lunas',
-                'Ditolak'
+                'Ditolak',
             ])->default('Menunggu Validasi');
             $table->text('catatan_penghuni')->nullable();
             $table->text('catatan_pemilik')->nullable();

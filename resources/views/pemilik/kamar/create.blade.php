@@ -46,6 +46,7 @@
                         <label class="form-label small fw-semibold text-secondary">Status Awal</label>
                         <select name="status" class="form-select" required>
                             <option value="Tersedia" selected>Tersedia</option>
+                            <option value="Sedang Diproses">Sedang Diproses</option>
                             <option value="Terisi">Terisi</option>
                             <option value="Tidak tersedia">Tidak Tersedia</option>
                         </select>

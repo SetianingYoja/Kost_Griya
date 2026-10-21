@@ -7,6 +7,7 @@ use App\Models\KostInfo;
 use App\Models\Rating;
 use App\Models\TipeKamar;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class VisitorController extends Controller
 {
@@ -64,12 +65,40 @@ class VisitorController extends Controller
             $search = $request->q;
             $query->where(function ($q) use ($search) {
                 $q->where('nomor_kamar', 'like', "%{$search}%")
-                  ->orWhere('fasilitas', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%");
+                    ->orWhere('fasilitas', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        // New: filter by availability period
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
+            $end = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+
+            if ($start->gt($end)) {
+                return back()->withErrors(['end_date' => 'Tanggal selesai harus setelah tanggal mulai.']);
+            }
+
+            // Exclude rooms with active leases overlapping the period
+            $query->whereDoesntHave('sewas', function ($q) use ($start, $end) {
+                $q->where('status', 'Aktif')
+                  ->where('tanggal_mulai', '<=', $end)
+                  ->where('tanggal_selesai', '>=', $start);
+            });
+
+            // Exclude rooms with bookings that occupy the period
+            $query->whereDoesntHave('bookings', function ($q) use ($start, $end) {
+                $q->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi', 'Aktif'])
+                  ->where(function ($sub) use ($start, $end) {
+                      $sub->where('tanggal_mulai', '<=', $end)
+                          ->whereRaw('DATE_ADD(tanggal_mulai, INTERVAL durasi_bulan MONTH) >= ?', [$start]);
+                  });
             });
         }
 
         $kamars = $query->paginate(9)->withQueryString();
+
+
         $tipeKamars = TipeKamar::all();
 
         return view('visitor.kamar.index', compact('kamars', 'tipeKamars'));

@@ -62,13 +62,8 @@ class ProcessNotificationReminders extends Command
                     $sewa->status = 'Selesai';
                     $sewa->save();
 
-                    if ($kamar && ! Sewa::query()
-                        ->where('kamar_id', $kamar->id)
-                        ->where('status', 'Aktif')
-                        ->where('id', '!=', $sewa->id)
-                        ->exists()) {
-                        $kamar->status = 'Tersedia';
-                        $kamar->save();
+                    if ($kamar) {
+                        $kamar->releaseIfAvailable();
                     }
 
                     $completed++;

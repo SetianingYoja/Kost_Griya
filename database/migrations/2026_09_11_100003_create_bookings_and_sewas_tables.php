@@ -21,10 +21,11 @@ return new class extends Migration
                 'Menunggu Validasi',
                 'Disetujui',
                 'Menunggu Pembayaran',
+                'Aktif',
                 'Ditolak',
                 'Kadaluarsa',
                 'Dibatalkan',
-                'Selesai'
+                'Selesai',
             ])->default('Menunggu Validasi');
             $table->text('alasan_penolakan')->nullable();
             $table->timestamp('batas_pembayaran')->nullable();

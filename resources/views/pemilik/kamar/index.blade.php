@@ -31,6 +31,7 @@
             <select name="status" class="form-select form-select-sm">
                 <option value="">Semua Status</option>
                 <option value="Tersedia" {{ request('status') == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                <option value="Sedang Diproses" {{ request('status') == 'Sedang Diproses' ? 'selected' : '' }}>Sedang Diproses</option>
                 <option value="Terisi" {{ request('status') == 'Terisi' ? 'selected' : '' }}>Terisi</option>
                 <option value="Tidak tersedia" {{ request('status') == 'Tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
             </select>
@@ -69,6 +70,8 @@
                         <td>
                             @if($kamar->status === 'Tersedia')
                                 <span class="badge bg-success">Tersedia</span>
+                            @elseif($kamar->status === 'Sedang Diproses')
+                                <span class="badge bg-warning text-dark">Sedang Diproses</span>
                             @elseif($kamar->status === 'Terisi')
                                 <span class="badge bg-danger">Terisi</span>
                             @else

@@ -33,10 +33,10 @@ class RolePermissionController extends Controller
         RiwayatAktivitas::catat(
             Auth::id(),
             'Perbarui Hak Akses Role',
-            'Super Admin memperbarui hak akses untuk role ' . $role->name,
+            'Super Admin memperbarui hak akses untuk role '.$role->name,
             'warning'
         );
 
-        return back()->with('success', 'Hak akses untuk role ' . $role->name . ' berhasil diperbarui.');
+        return back()->with('success', 'Hak akses untuk role '.$role->name.' berhasil diperbarui.');
     }
 }

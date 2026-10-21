@@ -46,6 +46,7 @@
                         <label class="form-label small fw-semibold text-secondary">Status</label>
                         <select name="status" class="form-select" required>
                             <option value="Tersedia" {{ old('status', $kamar->status) == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                            <option value="Sedang Diproses" {{ old('status', $kamar->status) == 'Sedang Diproses' ? 'selected' : '' }}>Sedang Diproses</option>
                             <option value="Terisi" {{ old('status', $kamar->status) == 'Terisi' ? 'selected' : '' }}>Terisi</option>
                             <option value="Tidak tersedia" {{ old('status', $kamar->status) == 'Tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
                         </select>

@@ -102,10 +102,11 @@
 
     <div class="col-lg-4">
         <div class="card-griya p-4">
-            <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Ketentuan Alur</h5>
+            <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Ketentuan Alur Booking</h5>
             <div class="small text-muted leading-relaxed">
-                <p class="mb-2">1. Menyetujui booking akan mengubah status menjadi <strong>Menunggu Pembayaran</strong> dan memberikan batas transfer 24 jam.</p>
-                <p class="mb-2">2. Status kamar <strong>belum</strong> menjadi Terisi sampai bukti pembayaran transfer divalidasi Lunas.</p>
+                <p class="mb-2">1. Booking baru langsung berstatus <strong>Menunggu Pembayaran</strong> dan penghuni langsung diarahkan ke QRIS.</p>
+                <p class="mb-2">2. Status kamar otomatis menjadi <strong>Sedang Diproses</strong> dan tidak dapat dibooking oleh pengguna lain.</p>
+                <p class="mb-2">3. Status kamar akan menjadi <strong>Terisi</strong> setelah pembayaran terkonfirmasi.</p>
             </div>
         </div>
     </div>

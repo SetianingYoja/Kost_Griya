@@ -70,8 +70,8 @@
                                 <i class="bi bi-eye"></i> Detail
                             </a>
                             @if(in_array($booking->status, ['Menunggu Pembayaran', 'Disetujui']))
-                                <a href="{{ route('penghuni.pembayaran.create', ['booking_id' => $booking->id]) }}" class="btn btn-sm btn-primary-griya ms-1">
-                                    <i class="bi bi-upload"></i> Bayar
+                                <a href="{{ route('penghuni.booking.bayar', $booking->id) }}" class="btn btn-sm btn-primary-griya ms-1">
+                                    <i class="bi bi-qr-code-scan"></i> Bayar QRIS
                                 </a>
                             @endif
                         </td>

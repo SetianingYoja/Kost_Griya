@@ -20,7 +20,7 @@ return new class extends Migration
                 'Menunggu',
                 'Diproses',
                 'Selesai',
-                'Ditolak'
+                'Ditolak',
             ])->default('Menunggu');
             $table->text('tanggapan')->nullable();
             $table->timestamp('selesai_pada')->nullable();
@@ -33,7 +33,7 @@ return new class extends Migration
             $table->foreignId('keluhan_id')->nullable()->constrained('keluhans')->nullOnDelete();
             $table->enum('jenis_rating', [
                 'Kost',
-                'Penanganan Keluhan'
+                'Penanganan Keluhan',
             ])->default('Kost');
             $table->unsignedTinyInteger('skor'); // 1 sampai 5
             $table->text('komentar')->nullable();

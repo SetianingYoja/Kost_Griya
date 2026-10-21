@@ -10,24 +10,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1. Peta data lama berstatus 'Disetujui' ke 'Menunggu Pembayaran' sebelum ENUM diubah
-        DB::statement("UPDATE bookings SET status = 'Menunggu Pembayaran' WHERE status = 'Disetujui'");
+        if (DB::getDriverName() !== 'sqlite') {
+            // 1. Peta data lama berstatus 'Disetujui' ke 'Menunggu Pembayaran' sebelum ENUM diubah
+            DB::statement("UPDATE bookings SET status = 'Menunggu Pembayaran' WHERE status = 'Disetujui'");
 
-        // 2. Ubah definisi ENUM status pada tabel bookings (menambah 'Aktif', menghapus 'Disetujui')
-        DB::statement("ALTER TABLE bookings MODIFY status ENUM(
-            'Menunggu Pembayaran',
-            'Menunggu Validasi',
-            'Aktif',
-            'Ditolak',
-            'Kadaluarsa',
-            'Dibatalkan',
-            'Selesai'
-        ) NOT NULL DEFAULT 'Menunggu Pembayaran'");
+            // 2. Ubah definisi ENUM status pada tabel bookings (menambah 'Aktif', menghapus 'Disetujui')
+            DB::statement("ALTER TABLE bookings MODIFY status ENUM(
+                'Menunggu Pembayaran',
+                'Menunggu Validasi',
+                'Aktif',
+                'Ditolak',
+                'Kadaluarsa',
+                'Dibatalkan',
+                'Selesai'
+            ) NOT NULL DEFAULT 'Menunggu Pembayaran'");
 
-        // 3. Backfill booking berstatus 'Selesai' yang sewa-nya masih 'Aktif' menjadi status 'Aktif'
-        DB::statement("UPDATE bookings SET status = 'Aktif' WHERE status = 'Selesai' AND id IN (
-            SELECT booking_id FROM sewas WHERE status = 'Aktif' AND booking_id IS NOT NULL
-        )");
+            // 3. Backfill booking berstatus 'Selesai' yang sewa-nya masih 'Aktif' menjadi status 'Aktif'
+            DB::statement("UPDATE bookings SET status = 'Aktif' WHERE status = 'Selesai' AND id IN (
+                SELECT booking_id FROM sewas WHERE status = 'Aktif' AND booking_id IS NOT NULL
+            )");
+        }
     }
 
     /**

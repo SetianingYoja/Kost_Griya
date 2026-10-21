@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RiwayatAktivitas;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\RiwayatAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -41,13 +41,14 @@ class AuthController extends Controller
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
+
                 return back()->with('error', 'Akun Anda saat ini dinonaktifkan. Silakan hubungi pihak pengelola kost.');
             }
 
             RiwayatAktivitas::catat(
                 $user->id,
                 'Login Berhasil',
-                'Pengguna masuk ke dalam sistem dari IP: ' . $request->ip(),
+                'Pengguna masuk ke dalam sistem dari IP: '.$request->ip(),
                 'success'
             );
 

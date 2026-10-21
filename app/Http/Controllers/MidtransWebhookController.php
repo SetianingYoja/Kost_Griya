@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Kamar;
 use App\Models\Pembayaran;
 use App\Models\Perpanjangan;
 use App\Models\RiwayatAktivitas;
+use App\Models\Sewa;
 use App\Models\Tagihan;
 use App\Notifications\BusinessNotification;
 use App\Services\MidtransService;
@@ -86,15 +88,14 @@ class MidtransWebhookController extends Controller
                 $isSuccessStatus,
                 $transactionId,
                 $paymentType,
+                $grossAmount,
                 &$response
             ) {
                 // Cek tipe transaksi berdasarkan awalan order_id atau prefix
                 $isPerpanjanganOrder = str_starts_with($orderId, 'EXT-');
 
                 if ($isPerpanjanganOrder) {
-                    // ==========================================
                     // ALUR DP PERPANJANGAN QRIS
-                    // ==========================================
                     // Format order_id: EXT-{perpanjangan_id}-{timestamp}
                     $orderParts = explode('-', $orderId);
                     $perpanjanganId = $orderParts[1] ?? null;
@@ -355,7 +356,21 @@ class MidtransWebhookController extends Controller
 
                         return;
                     }
-
+// 3. Validate gross amount matches expected booking amount
+                            $expectedAmount = $booking->tipe_pembayaran === 'Lunas' ? (float) $booking->total_harga : (float) $booking->nominal_dp;
+                            $receivedAmount = (float) $grossAmount;
+                            if (abs($expectedAmount - $receivedAmount) > 0.01) {
+                                Log::warning('Midtrans Webhook: Gross amount mismatch', [
+                                    'order_id' => $orderId,
+                                    'expected' => $expectedAmount,
+                                    'received' => $receivedAmount,
+                                ]);
+                                $response = response()->json([
+                                    'status' => 'error',
+                                    'message' => 'Gross amount does not match expected payment amount',
+                                ], 400);
+                                return;
+                            }
                     // Pencegahan downgrade status: jika sudah sukses, jangan di-override oleh webhook pending/expire yang datang terlambat
                     if (in_array($booking->midtrans_status, ['settlement', 'capture'])) {
                         if (! $isSuccessStatus) {
@@ -374,55 +389,45 @@ class MidtransWebhookController extends Controller
                     }
 
                     // Pengujian Idempotensi
-                    if ($isSuccessStatus && $booking->midtrans_status === 'settlement') {
-                        $existingPembayaran = Pembayaran::where('booking_id', $booking->id)
-                            ->where('midtrans_transaction_id', $transactionId)
-                            ->first();
+                    $existingPembayaran = Pembayaran::where('booking_id', $booking->id)
+                        ->where(function ($q) use ($transactionId) {
+                            $q->where('midtrans_transaction_id', $transactionId)
+                                ->orWhere('status', 'Lunas');
+                        })
+                        ->first();
 
-                        if ($existingPembayaran) {
-                            Log::info('Midtrans Webhook: Notification already processed (idempotent)', [
-                                'order_id' => $orderId,
-                                'booking_id' => $booking->id,
-                                'booking_status' => $booking->status,
-                            ]);
-                            $response = response()->json([
-                                'status' => 'success',
-                                'message' => 'Notification already processed (idempotent)',
-                            ], 200);
+                    if ($isSuccessStatus && $existingPembayaran && $booking->status === 'Aktif') {
+                        Log::info('Midtrans Webhook: Notification already processed (idempotent)', [
+                            'order_id' => $orderId,
+                            'booking_id' => $booking->id,
+                            'booking_status' => $booking->status,
+                        ]);
+                        $response = response()->json([
+                            'status' => 'success',
+                            'message' => 'Notification already processed (idempotent)',
+                        ], 200);
 
-                            return;
-                        }
+                        return;
                     }
 
-                    $booking->midtrans_status = $transactionStatus;
-
-                    if ($isSuccessStatus) {
-                        $paidAt = isset($payload['settlement_time'])
-                            ? Carbon::parse($payload['settlement_time'])
-                            : Carbon::now();
-
-                        $booking->midtrans_paid_at = $paidAt;
-                        // Update status booking dari "Menunggu Pembayaran" menjadi "Menunggu Validasi"
-                        // JANGAN langsung menjadi "Aktif" (Pemilik Kost yang akan memvalidasi)
-                        $booking->status = 'Menunggu Validasi';
+                    if ($transactionStatus === 'pending') {
+                        $booking->status = 'Menunggu Pembayaran';
                         $booking->save();
 
-                        // Buat/Update transaksi Pembayaran
-                        $pembayaran = Pembayaran::where('midtrans_transaction_id', $transactionId)
-                            ->orWhere(function ($query) use ($booking) {
-                                $query->where('booking_id', $booking->id)
-                                    ->where('jenis_pembayaran', 'Booking Awal');
+                    } elseif ($transactionStatus === 'settlement' || $transactionStatus === 'capture') {
+                        // Successful payment: activate booking, mark payment as Lunas, allocate room, and create sewa
+                        $booking->midtrans_status = $transactionStatus;
+                        $booking->status = 'Aktif';
+                        $booking->midtrans_paid_at = now();
+                        $booking->save();
+
+                        // Create or update payment record for booking
+                        $pembayaran = Pembayaran::where('booking_id', $booking->id)
+                            ->where(function ($q) use ($transactionId) {
+                                $q->where('midtrans_transaction_id', $transactionId)
+                                    ->orWhereNull('midtrans_transaction_id');
                             })
                             ->first();
-
-                        // Tentukan nominal yang benar berdasarkan tipe pembayaran
-                        $tipePembayaran = $booking->tipe_pembayaran ?? 'DP';
-                        $nominalPembayaran = ($tipePembayaran === 'Lunas')
-                            ? (float) $booking->total_harga
-                            : (float) $booking->nominal_dp;
-                        $catatanPembayaran = ($tipePembayaran === 'Lunas')
-                            ? 'Pembayaran Lunas QRIS via Midtrans (Order ID: '.$booking->midtrans_order_id.')'
-                            : 'Pembayaran DP QRIS via Midtrans Sandbox (Order ID: '.$booking->midtrans_order_id.')';
 
                         if (! $pembayaran) {
                             $kodePembayaran = 'PAY-'.date('Ymd').'-'.strtoupper(Str::random(5));
@@ -431,69 +436,141 @@ class MidtransWebhookController extends Controller
                             $pembayaran->user_id = $booking->user_id;
                             $pembayaran->booking_id = $booking->id;
                             $pembayaran->jenis_pembayaran = 'Booking Awal';
-                            $pembayaran->nominal = $nominalPembayaran;
+                            $pembayaran->nominal = $booking->tipe_pembayaran === 'Lunas' ? (float) $booking->total_harga : (float) $booking->nominal_dp;
                             $pembayaran->metode_pembayaran = 'QRIS';
                         }
-
                         $pembayaran->midtrans_transaction_id = $transactionId;
                         $pembayaran->midtrans_payment_type = $paymentType;
-                        $pembayaran->tanggal_bayar = $paidAt->toDateString();
-                        $pembayaran->status = 'Menunggu Validasi';
-                        $pembayaran->catatan_penghuni = $catatanPembayaran;
+                        $pembayaran->tanggal_bayar = now()->toDateString();
+                        $pembayaran->status = 'Lunas';
+                        $pembayaran->catatan_penghuni = 'Pembayaran QRIS Booking via Midtrans (Order ID: '.$orderId.')';
                         $pembayaran->save();
 
-                        $labelTipe = ($tipePembayaran === 'Lunas') ? 'LUNAS' : 'DP';
+                        // Update room status to Terisi
+                        $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+                        if ($kamar) {
+                            $kamar->status = 'Terisi';
+                            $kamar->save();
+                        }
+
+                        // Create active sewa record if not existing
+                        $sewa = Sewa::where('booking_id', $booking->id)->first();
+                        if (! $sewa) {
+                            $tanggalMulai = Carbon::parse($booking->tanggal_mulai);
+                            $durasiBulan = (int) $booking->durasi_bulan;
+                            $tanggalSelesai = $tanggalMulai->copy()->addMonths($durasiBulan)->subDay();
+
+                            $sewa = new Sewa;
+                            $sewa->user_id = $booking->user_id;
+                            $sewa->kamar_id = $booking->kamar_id;
+                            $sewa->booking_id = $booking->id;
+                            $sewa->status = 'Aktif';
+                            $sewa->harga_per_bulan = $kamar ? (float) $kamar->harga : 0;
+                            $sewa->tanggal_mulai = $tanggalMulai;
+                            $sewa->tanggal_selesai = $tanggalSelesai;
+                            $sewa->save();
+
+                            $hargaPerBulan = $kamar ? (float) $kamar->harga : 0;
+                            if ($booking->tipe_pembayaran === 'Lunas') {
+                                for ($i = 1; $i <= $durasiBulan; $i++) {
+                                    $nomorTagihan = 'INV-'.date('Ymd').'-'.strtoupper(Str::random(4)).'-'.$i;
+                                    $jatuhTempoBulan = $tanggalMulai->copy()->addMonths($i - 1);
+                                    $namaPeriode = ($i === 1)
+                                        ? 'Bulan Pertama ('.$jatuhTempoBulan->translatedFormat('F Y').')'
+                                        : 'Bulan '.$i.' ('.$jatuhTempoBulan->translatedFormat('F Y').')';
+
+                                    Tagihan::create([
+                                        'nomor_tagihan' => $nomorTagihan,
+                                        'user_id' => $booking->user_id,
+                                        'kamar_id' => $booking->kamar_id,
+                                        'sewa_id' => $sewa->id,
+                                        'periode' => $namaPeriode,
+                                        'bulan_ke' => $i,
+                                        'nominal' => $hargaPerBulan,
+                                        'potongan_dp' => 0,
+                                        'total_bayar' => 0,
+                                        'tanggal_jatuh_tempo' => $jatuhTempoBulan,
+                                        'status' => 'Lunas',
+                                    ]);
+                                }
+                            } else {
+                                $nominalDp = (float) $booking->nominal_dp;
+                                for ($i = 1; $i <= $durasiBulan; $i++) {
+                                    $nomorTagihan = 'INV-'.date('Ymd').'-'.strtoupper(Str::random(4)).'-'.$i;
+                                    $jatuhTempoBulan = $tanggalMulai->copy()->addMonths($i - 1);
+                                    $namaPeriode = ($i === 1)
+                                        ? 'Bulan Pertama ('.$jatuhTempoBulan->translatedFormat('F Y').')'
+                                        : 'Bulan '.$i.' ('.$jatuhTempoBulan->translatedFormat('F Y').')';
+
+                                    $potonganBulanIni = ($i === 1) ? $nominalDp : 0;
+                                    $totalBayarBulanIni = max(0, $hargaPerBulan - $potonganBulanIni);
+
+                                    Tagihan::create([
+                                        'nomor_tagihan' => $nomorTagihan,
+                                        'user_id' => $booking->user_id,
+                                        'kamar_id' => $booking->kamar_id,
+                                        'sewa_id' => $sewa->id,
+                                        'periode' => $namaPeriode,
+                                        'bulan_ke' => $i,
+                                        'nominal' => $hargaPerBulan,
+                                        'potongan_dp' => $potonganBulanIni,
+                                        'total_bayar' => $totalBayarBulanIni,
+                                        'tanggal_jatuh_tempo' => $jatuhTempoBulan,
+                                        'status' => 'Belum Dibayar',
+                                    ]);
+                                }
+                            }
+                        }
+
                         RiwayatAktivitas::catat(
                             $booking->user_id,
-                            'Pembayaran '.$labelTipe.' QRIS Diterima',
-                            'Pembayaran '.$labelTipe.' QRIS ('.$booking->kode_booking.') sebesar Rp '.number_format($nominalPembayaran, 0, ',', '.').' berhasil dan menunggu validasi Pemilik Kost.',
+                            'Pembayaran QRIS Booking Diterima',
+                            'Pembayaran QRIS booking '.$booking->kode_booking.' berhasil, kamar '.($kamar ? $kamar->nomor_kamar : '').' diaktifkan.',
                             'success'
                         );
-
-                        $notifTitle = ($tipePembayaran === 'Lunas')
-                            ? 'Pembayaran Lunas QRIS Diterima'
-                            : 'Pembayaran DP QRIS Diterima';
-                        $notifMessage = ($tipePembayaran === 'Lunas')
-                            ? 'Pembayaran Lunas QRIS untuk booking '.$booking->kode_booking.' telah diterima Midtrans dan menunggu validasi Anda.'
-                            : 'Pembayaran DP QRIS untuk booking '.$booking->kode_booking.' telah diterima Midtrans dan menunggu validasi Anda.';
-
-                        $notification = new BusinessNotification(
-                            'booking',
-                            'menunggu_validasi',
-                            $notifTitle,
-                            $notifMessage,
-                            'booking:'.$booking->id.':menunggu_validasi',
-                            ['entity_type' => 'booking', 'entity_id' => $booking->id, 'actor_id' => $booking->user_id]
-                        );
-
-                        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, $booking->user_id);
-                        $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, $booking->user_id);
-
-                    } elseif ($transactionStatus === 'pending') {
-                        $booking->status = 'Menunggu Pembayaran';
-                        $booking->save();
-
                     } elseif ($transactionStatus === 'expire') {
-                        $booking->status = 'Kadaluarsa';
-                        $booking->save();
+                        $hasPayment = $booking->pembayarans()
+                            ->whereIn('status', ['Menunggu Validasi', 'Lunas'])
+                            ->exists();
 
-                        RiwayatAktivitas::catat(
-                            $booking->user_id,
-                            'Pembayaran QRIS Kedaluwarsa',
-                            'Waktu pembayaran QRIS untuk booking '.$booking->kode_booking.' telah kedaluwarsa.',
-                            'warning'
-                        );
+                        if (! $hasPayment && ! in_array($booking->midtrans_status, ['settlement', 'capture'], true)) {
+                            $booking->status = 'Kadaluarsa';
+                            $booking->save();
+
+                            $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+                            if ($kamar) {
+                                $kamar->releaseIfAvailable($booking->id);
+                            }
+
+                            RiwayatAktivitas::catat(
+                                $booking->user_id,
+                                'Pembayaran QRIS Kedaluwarsa',
+                                'Waktu pembayaran QRIS untuk booking '.$booking->kode_booking.' telah kedaluwarsa.',
+                                'warning'
+                            );
+                        }
 
                     } elseif (in_array($transactionStatus, ['cancel', 'deny', 'failure'])) {
-                        $booking->status = 'Dibatalkan';
-                        $booking->save();
+                        $hasPayment = $booking->pembayarans()
+                            ->whereIn('status', ['Menunggu Validasi', 'Lunas'])
+                            ->exists();
 
-                        RiwayatAktivitas::catat(
-                            $booking->user_id,
-                            'Pembayaran QRIS Gagal',
-                            'Pembayaran QRIS untuk booking '.$booking->kode_booking.' gagal ('.$transactionStatus.').',
-                            'danger'
-                        );
+                        if (! $hasPayment && ! in_array($booking->midtrans_status, ['settlement', 'capture'], true)) {
+                            $booking->status = 'Dibatalkan';
+                            $booking->save();
+
+                            $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+                            if ($kamar) {
+                                $kamar->releaseIfAvailable($booking->id);
+                            }
+
+                            RiwayatAktivitas::catat(
+                                $booking->user_id,
+                                'Pembayaran QRIS Gagal',
+                                'Pembayaran QRIS untuk booking '.$booking->kode_booking.' gagal ('.$transactionStatus.').',
+                                'danger'
+                            );
+                        }
                     }
                 }
             });

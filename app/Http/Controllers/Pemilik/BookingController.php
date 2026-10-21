@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Pemilik;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Kamar;
 use App\Models\RiwayatAktivitas;
 use App\Notifications\BusinessNotification;
 use App\Services\Notifications\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -59,9 +61,17 @@ class BookingController extends Controller
             return back()->with('error', 'Pembayaran Booking Awal sudah menunggu validasi. Silakan lanjutkan melalui menu Validasi Pembayaran.');
         }
 
-        $booking->status = 'Menunggu Pembayaran';
-        $booking->batas_pembayaran = Carbon::now()->addHours(24);
-        $booking->save();
+        DB::transaction(function () use ($booking) {
+            $booking->status = 'Menunggu Pembayaran';
+            $booking->batas_pembayaran = Carbon::now()->addHours(24);
+            $booking->save();
+
+            $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+            if ($kamar && $kamar->status === 'Tersedia') {
+                $kamar->status = 'Sedang Diproses';
+                $kamar->save();
+            }
+        });
 
         RiwayatAktivitas::catat(
             $booking->user_id,
@@ -113,9 +123,16 @@ class BookingController extends Controller
             return back()->with('error', 'Booking ini sudah tidak dalam status menunggu validasi.');
         }
 
-        $booking->status = 'Ditolak';
-        $booking->alasan_penolakan = $request->alasan_penolakan;
-        $booking->save();
+        DB::transaction(function () use ($booking, $request) {
+            $booking->status = 'Ditolak';
+            $booking->alasan_penolakan = $request->alasan_penolakan;
+            $booking->save();
+
+            $kamar = Kamar::lockForUpdate()->find($booking->kamar_id);
+            if ($kamar) {
+                $kamar->releaseIfAvailable($booking->id);
+            }
+        });
 
         RiwayatAktivitas::catat(
             $booking->user_id,

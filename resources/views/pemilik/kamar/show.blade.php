@@ -15,7 +15,7 @@
         <div class="card-griya p-4 mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
                 <h4 class="fw-bold text-secondary mb-0">{{ $kamar->nomor_kamar }}</h4>
-                <span class="badge bg-{{ $kamar->status === 'Tersedia' ? 'success' : ($kamar->status === 'Terisi' ? 'danger' : 'secondary') }} px-3 py-2 fs-6">
+                <span class="badge bg-{{ $kamar->status === 'Tersedia' ? 'success' : ($kamar->status === 'Sedang Diproses' ? 'warning text-dark' : ($kamar->status === 'Terisi' ? 'danger' : 'secondary')) }} px-3 py-2 fs-6">
                     {{ $kamar->status }}
                 </span>
             </div>

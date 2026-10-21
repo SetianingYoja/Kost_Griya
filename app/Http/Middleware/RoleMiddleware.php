@@ -12,12 +12,12 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      * @param  string  ...$roles
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu untuk mengakses halaman ini.');
         }
 
@@ -27,6 +27,7 @@ class RoleMiddleware
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+
             return redirect()->route('login')->with('error', 'Akun Anda telah dinonaktifkan. Silakan hubungi pengelola.');
         }
 
@@ -39,7 +40,7 @@ class RoleMiddleware
         $normalizedUserRole = $user->normalizeRoleSlug($userRoleSlug);
         $normalizedAllowedRoles = array_map(fn ($role) => $user->normalizeRoleSlug($role), $roles);
 
-        if (!in_array($normalizedUserRole, $normalizedAllowedRoles, true)) {
+        if (! in_array($normalizedUserRole, $normalizedAllowedRoles, true)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk membuka halaman ini.');
         }
 
