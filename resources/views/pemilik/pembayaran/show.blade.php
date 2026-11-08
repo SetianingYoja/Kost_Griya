@@ -95,9 +95,7 @@
                 </div>
 
             @else
-                {{-- ======================================================== --}}
-                {{-- SECTION: Detail Pembayaran Transfer Manual                --}}
-                {{-- ======================================================== --}}
+            <!-- DETAIL PEMBAYARAN TRASFER MANUAL -->
                 <div class="row g-3 small mb-4">
                     <div class="col-sm-6">
                         <span class="text-muted d-block">Nama Pengirim:</span>

@@ -182,7 +182,7 @@ class BookingController extends Controller
                     ['entity_type' => 'booking', 'entity_id' => $booking->id, 'actor_id' => $user->id]
                 );
 
-                $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, $user->id);
+                $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, $user->id);
                 $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, $user->id);
 
                 return $booking;
@@ -342,7 +342,7 @@ class BookingController extends Controller
             ['entity_type' => 'booking', 'entity_id' => $cancelled->id, 'actor_id' => Auth::id()]
         );
 
-        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, Auth::id());
         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return redirect()->route('penghuni.dashboard')->with('success', 'Pemesanan kamar berhasil dibatalkan.');

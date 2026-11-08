@@ -139,7 +139,7 @@ class PerpanjanganController extends Controller
             ['entity_type' => 'perpanjangan', 'entity_id' => $perpanjangan->id, 'actor_id' => Auth::id()]
         );
 
-        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, Auth::id());
         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         $message = $request->tipe_pembayaran === 'Lunas'

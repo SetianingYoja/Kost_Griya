@@ -21,7 +21,6 @@ class User extends Authenticatable
         'email',
         'phone',
         'status',
-        'avatar',
         'password',
     ];
 
@@ -100,6 +99,7 @@ class User extends Authenticatable
         return match ($normalized) {
             'superadmin' => 'super-admin',
             'pemilik', 'pemilik-kost', 'pemilikkost' => 'pemilik-kost',
+            'pengelola', 'manager' => 'pengelola',
             'penghuni', 'tenant', 'tenant-kost' => 'penghuni',
             default => $normalized,
         };
@@ -111,9 +111,28 @@ class User extends Authenticatable
         return $this->role && self::normalizeRoleSlug($this->role->slug) === 'super-admin';
     }
 
-    public function isPemilik(): bool
+    /**
+     * Cek apakah user adalah Pengelola (mengelola operasional kost).
+     */
+    public function isPengelola(): bool
+    {
+        return $this->role && self::normalizeRoleSlug($this->role->slug) === 'pengelola';
+    }
+
+    /**
+     * Cek apakah user adalah Pemilik Kost (read-only, monitoring & laporan).
+     */
+    public function isPemilikKost(): bool
     {
         return $this->role && self::normalizeRoleSlug($this->role->slug) === 'pemilik-kost';
+    }
+
+    /**
+     * @deprecated Gunakan isPemilikKost(). Dipertahankan untuk backward compatibility.
+     */
+    public function isPemilik(): bool
+    {
+        return $this->isPemilikKost();
     }
 
     public function isPenghuni(): bool

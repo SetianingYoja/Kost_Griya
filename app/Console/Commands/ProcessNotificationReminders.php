@@ -166,6 +166,7 @@ class ProcessNotificationReminders extends Command
             );
 
             $notificationService->sendAfterCommit($tagihan->user, $notification);
+            $notificationService->sendToRoleAfterCommit('pengelola', $notification);
             $notificationService->sendToRoleAfterCommit('super-admin', $notification);
             $updated++;
         }

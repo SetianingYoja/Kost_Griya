@@ -307,53 +307,6 @@
                         </div>
                     </div>
 
-                    <div class="p-4 bg-light rounded-4 border mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold text-secondary mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Rating Kamar</h5>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-warning fw-bold">{{ number_format($avgKamarRating ?? 0, 1) }}/5</span>
-                                <small class="text-muted">({{ $totalKamarReviews ?? 0 }} ulasan)</small>
-                            </div>
-                        </div>
-
-                        @if($kamarRatings->count())
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <div class="text-warning">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <i class="bi bi-star{{ $i <= round($avgKamarRating) ? '-fill' : '' }}"></i>
-                                    @endfor
-                                </div>
-                                <span class="small text-secondary">Rata-rata dari penghuni aktif</span>
-                            </div>
-
-                            <div class="d-flex flex-column gap-3">
-                                @foreach($kamarRatings->take(3) as $review)
-                                    <div class="border rounded-3 bg-white p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <strong class="text-secondary small">{{ $review->user->name ?? 'Penghuni' }}</strong>
-                                            <div class="text-warning small">
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    <i class="bi bi-star{{ $i <= ($review->skor ?? 0) ? '-fill' : '' }}"></i>
-                                                @endfor
-                                            </div>
-                                        </div>
-                                        <p class="small text-muted mb-0">{{ $review->komentar ?: 'Penghuni merasa kamar ini nyaman dan layak dihuni.' }}</p>
-                                        @if($review->balasan)
-                                            <div class="mt-2 p-2 bg-light rounded-2 border-start border-3 border-primary small">
-                                                <span class="fw-semibold text-primary d-block mb-1" style="font-size: 0.75rem;">
-                                                    <i class="bi bi-reply-fill me-1"></i>Respon Pemilik Kost:
-                                                </span>
-                                                <p class="text-muted small mb-0">{{ $review->balasan }}</p>
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <p class="text-muted small mb-0">Belum ada ulasan valid untuk kamar ini.</p>
-                        @endif
-                    </div>
-
                     <!-- Aturan Kost Ringkas -->
                     <div class="p-4 bg-light rounded-4 border">
                         <h5 class="fw-bold text-secondary mb-2"><i class="bi bi-journal-text text-primary me-2"></i>Tata Tertib Kost</h5>

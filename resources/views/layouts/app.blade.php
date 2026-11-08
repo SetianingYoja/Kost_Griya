@@ -39,6 +39,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link nav-link-griya {{ request()->routeIs('ulasan.*') ? 'active' : '' }}" href="{{ route('ulasan.index') }}">
+                            <i class="bi bi-star me-1"></i> Rating & Ulasan
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link nav-link-griya {{ request()->routeIs('tentang') ? 'active' : '' }}" href="{{ route('tentang') }}">
                             <i class="bi bi-info-circle me-1"></i> Tentang Kami
                         </a>
@@ -172,6 +177,7 @@
                     <ul class="list-unstyled d-flex flex-column gap-2 small">
                         <li><a href="{{ route('home') }}" class="footer-link"><i class="bi bi-chevron-right me-1 small"></i> Beranda</a></li>
                         <li><a href="{{ route('kamar.index') }}" class="footer-link"><i class="bi bi-chevron-right me-1 small"></i> Pilihan Kamar</a></li>
+                        <li><a href="{{ route('ulasan.index') }}" class="footer-link"><i class="bi bi-chevron-right me-1 small"></i> Rating & Ulasan</a></li>
                         <li><a href="{{ route('tentang') }}" class="footer-link"><i class="bi bi-chevron-right me-1 small"></i> Tentang Kami</a></li>
                         <li><a href="{{ route('login') }}" class="footer-link"><i class="bi bi-chevron-right me-1 small"></i> Portal Masuk</a></li>
                     </ul>

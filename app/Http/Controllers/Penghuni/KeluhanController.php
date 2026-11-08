@@ -125,7 +125,7 @@ class KeluhanController extends Controller
             ['entity_type' => 'keluhan', 'entity_id' => $keluhan->id, 'actor_id' => Auth::id()]
         );
 
-        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, Auth::id());
         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return redirect()->route('penghuni.keluhan.index')

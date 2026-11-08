@@ -50,10 +50,6 @@ class VisitorController extends Controller
             $query->where('tipe_kamar_id', $request->tipe);
         }
 
-        // Filter status
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
 
         // Filter lantai
         if ($request->filled('lantai')) {
@@ -70,8 +66,15 @@ class VisitorController extends Controller
             });
         }
 
-        // New: filter by availability period
-        if ($request->filled('start_date') && $request->filled('end_date')) {
+        $isDateFilterActive = $request->filled('start_date') && $request->filled('end_date');
+
+        // Filter status statis hanya digunakan jika filter tanggal TIDAK diisi
+        if ($request->filled('status') && ! $isDateFilterActive) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by availability period
+        if ($isDateFilterActive) {
             $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
             $end = \Carbon\Carbon::parse($request->end_date)->endOfDay();
 
@@ -79,20 +82,38 @@ class VisitorController extends Controller
                 return back()->withErrors(['end_date' => 'Tanggal selesai harus setelah tanggal mulai.']);
             }
 
+            // Kamar yang secara fisik 'Tidak tersedia' (rusak/maintenance) tidak boleh muncul
+            $query->where('status', '!=', 'Tidak tersedia');
+
             // Exclude rooms with active leases overlapping the period
             $query->whereDoesntHave('sewas', function ($q) use ($start, $end) {
                 $q->where('status', 'Aktif')
-                  ->where('tanggal_mulai', '<=', $end)
-                  ->where('tanggal_selesai', '>=', $start);
+                    ->where('tanggal_mulai', '<=', $end)
+                    ->where('tanggal_selesai', '>=', $start);
             });
 
             // Exclude rooms with bookings that occupy the period
+            // Hindari pemblokiran ganda dengan mengecualikan booking yang sudah memiliki kontrak sewa
             $query->whereDoesntHave('bookings', function ($q) use ($start, $end) {
-                $q->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi', 'Aktif'])
-                  ->where(function ($sub) use ($start, $end) {
-                      $sub->where('tanggal_mulai', '<=', $end)
-                          ->whereRaw('DATE_ADD(tanggal_mulai, INTERVAL durasi_bulan MONTH) >= ?', [$start]);
-                  });
+                $q->whereDoesntHave('sewa')
+                    ->where(function ($statusQuery) {
+                        $statusQuery->whereIn('status', ['Menunggu Validasi', 'Disetujui', 'Aktif'])
+                            ->orWhere(function ($pendingQuery) {
+                                $pendingQuery->where('status', 'Menunggu Pembayaran')
+                                    ->where(function ($bpQuery) {
+                                        $bpQuery->whereNull('batas_pembayaran')
+                                            ->orWhere('batas_pembayaran', '>', \Carbon\Carbon::now());
+                                    });
+                            });
+                    })
+                    ->where(function ($sub) use ($start, $end) {
+                        $sub->where('tanggal_mulai', '<=', $end);
+                        if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
+                            $sub->whereRaw("date(tanggal_mulai, '+' || durasi_bulan || ' month') >= ?", [$start->toDateString()]);
+                        } else {
+                            $sub->whereRaw('DATE_ADD(tanggal_mulai, INTERVAL durasi_bulan MONTH) >= ?', [$start]);
+                        }
+                    });
             });
         }
 
@@ -125,6 +146,42 @@ class VisitorController extends Controller
         $totalKamarReviews = $kamarRatings->count();
 
         return view('visitor.kamar.detail', compact('kamar', 'kostInfo', 'kamarLain', 'kamarRatings', 'avgKamarRating', 'totalKamarReviews'));
+    }
+
+    public function ulasanIndex(Request $request)
+    {
+        $kostInfo = KostInfo::first();
+
+        $baseQuery = Rating::with(['user', 'kamar'])
+            ->validForDisplay()
+            ->where('jenis_rating', 'Kost');
+
+        $totalReviews = (clone $baseQuery)->count();
+        $avgRating = (clone $baseQuery)->avg('skor') ?? 0;
+
+        $starCounts = [
+            5 => (clone $baseQuery)->where('skor', 5)->count(),
+            4 => (clone $baseQuery)->where('skor', 4)->count(),
+            3 => (clone $baseQuery)->where('skor', 3)->count(),
+            2 => (clone $baseQuery)->where('skor', 2)->count(),
+            1 => (clone $baseQuery)->where('skor', 1)->count(),
+        ];
+
+        $filterRating = $request->query('rating');
+        if ($filterRating && in_array((int) $filterRating, [1, 2, 3, 4, 5], true)) {
+            $baseQuery->where('skor', (int) $filterRating);
+        }
+
+        $ratings = $baseQuery->latest()->paginate(12);
+
+        return view('visitor.ulasan.index', compact(
+            'kostInfo',
+            'ratings',
+            'totalReviews',
+            'avgRating',
+            'starCounts',
+            'filterRating'
+        ));
     }
 
     public function tentang()

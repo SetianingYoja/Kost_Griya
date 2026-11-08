@@ -62,8 +62,10 @@ class NotificationController extends Controller
 
         if (Auth::user()->isPenghuni()) {
             $prefix = 'penghuni';
-        } elseif (Auth::user()->isPemilik() || Auth::user()->isSuperAdmin()) {
+        } elseif (Auth::user()->isPengelola() || Auth::user()->isSuperAdmin()) {
             $prefix = 'pemilik';
+        } elseif (Auth::user()->isPemilikKost()) {
+            return route('pemilik-kost.dashboard');
         } else {
             return null;
         }

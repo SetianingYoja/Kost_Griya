@@ -215,7 +215,7 @@ class MidtransWebhookController extends Controller
                             ['entity_type' => 'perpanjangan', 'entity_id' => $perpanjangan->id, 'actor_id' => $perpanjangan->user_id]
                         );
 
-                        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, $perpanjangan->user_id);
+                        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, $perpanjangan->user_id);
                         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, $perpanjangan->user_id);
                     }
                 } elseif (str_starts_with($orderId, 'BILL-')) {
@@ -335,7 +335,7 @@ class MidtransWebhookController extends Controller
                             ['entity_type' => 'tagihan', 'entity_id' => $tagihan->id, 'actor_id' => $tagihan->user_id]
                         );
 
-                        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, $tagihan->user_id);
+                        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, $tagihan->user_id);
                         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, $tagihan->user_id);
                     }
                 } else {

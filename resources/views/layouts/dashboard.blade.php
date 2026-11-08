@@ -18,23 +18,25 @@
 </head>
 <body class="bg-light">
     <!-- Dashboard Top Header -->
-    <header class="navbar navbar-expand-lg bg-amber-400 border-bottom sticky-top py-2 px-3 px-md-4 shadow-sm" style="z-index: 1020;">
-        <div class="d-flex align-items-center gap-3">
-            <button class="btn btn-sm btn-light border d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar">
+    <header class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-2 px-2 px-sm-3 px-md-4 shadow-sm dashboard-navbar" style="z-index: 1020;">
+        <div class="d-flex align-items-center gap-2 gap-sm-3">
+            <button class="btn btn-sm btn-light border d-lg-none d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar" aria-label="Buka menu navigasi" style="width: 36px; height: 36px;">
                 <i class="bi bi-list fs-5"></i>
             </button>
             <a href="{{ route('home') }}" class="d-flex align-items-center gap-2 text-decoration-none">
-                <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--brand-primary); width: 36px; height: 36px;">
+                <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--brand-primary); width: 34px; height: 34px;">
                     <i class="bi bi-buildings"></i>
                 </div>
                 <div>
-                    <span class="navbar-brand-title d-block lh-1" style="font-size: 1.3rem;">Kost Putri Griya Ayu</span>
-                    <span class="navbar-brand-subtitle" style="font-size: 0.65rem;">Management Portal</span>
+                    <span class="navbar-brand-title d-block lh-1">
+                        <span class="d-none d-sm-inline">Kost Putri </span>Griya Ayu
+                    </span>
+                    <span class="navbar-brand-subtitle d-none d-sm-block" style="font-size: 0.65rem;">Management Portal</span>
                 </div>
             </a>
         </div>
 
-        <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="ms-auto d-flex align-items-center gap-2 gap-sm-3">
             <a href="{{ route('home') }}" class="btn btn-sm btn-outline-griya d-none d-md-inline-flex align-items-center gap-1">
                 <i class="bi bi-globe"></i> Website Publik
             </a>
@@ -44,11 +46,11 @@
                 $latestNotifications = Auth::user()->notifications()->latest()->take(5)->get();
             @endphp
             <div class="dropdown">
-                <button id="notificationBell" class="btn btn-light border position-relative d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi">
+                <button id="notificationBell" class="btn btn-light border position-relative d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi" style="width: 36px; height: 36px;">
                     <i class="bi bi-bell fs-5 text-primary"></i>
                     <span id="notificationBadge" data-count="{{ $unreadNotifications }}" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger {{ $unreadNotifications > 0 ? '' : 'd-none' }}" style="font-size: 0.62rem;">{{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}</span>
                 </button>
-                <div id="notificationDropdown" class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2 p-0" style="width: min(360px, calc(100vw - 2rem));">
+                <div id="notificationDropdown" class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2 p-0" style="width: min(340px, calc(100vw - 1.5rem));">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <strong class="text-secondary">Notifikasi</strong>
                         <a href="{{ route('notifications.index') }}" class="small text-primary text-decoration-none">Lihat semua</a>
@@ -74,15 +76,16 @@
             </div>
 
             <div class="dropdown">
-                <button class="btn btn-light border rounded-pill d-flex align-items-center gap-2 py-1 px-3" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-light border rounded-pill d-flex align-items-center gap-1 gap-sm-2 py-1 px-2 px-sm-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle fs-5 text-primary"></i>
-                    <span class="fw-medium small d-none d-sm-inline">{{ Auth::user()->name }}</span>
-                    <span class="badge bg-primary rounded-pill small">{{ Auth::user()->role->name ?? 'User' }}</span>
+                    <span class="fw-medium small d-none d-md-inline">{{ Auth::user()->name }}</span>
+                    <span class="badge bg-primary rounded-pill small d-none d-sm-inline">{{ Auth::user()->role->name ?? 'User' }}</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
                     <li class="px-3 py-2 border-bottom">
                         <strong class="d-block text-secondary small">{{ Auth::user()->name }}</strong>
-                        <small class="text-muted">{{ Auth::user()->email }}</small>
+                        <span class="badge bg-primary rounded-pill small my-1">{{ Auth::user()->role->name ?? 'User' }}</span>
+                        <small class="text-muted d-block">{{ Auth::user()->email }}</small>
                     </li>
                     <li>
                         <a class="dropdown-item py-2" href="{{ route('profile') }}">
@@ -107,6 +110,22 @@
         <div class="row">
             <!-- Sidebar Navigation -->
             <nav id="dashboardSidebar" class="col-lg-3 col-xl-2 d-lg-block collapse sidebar-griya">
+                <!-- Header khusus drawer mobile -->
+                <div class="d-flex d-lg-none justify-content-between align-items-center pb-3 mb-2 border-bottom border-light border-opacity-10">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="stat-icon" style="background: rgba(255, 255, 255, 0.15); color: #fff; width: 32px; height: 32px; border-radius: 6px;">
+                            <i class="bi bi-buildings"></i>
+                        </div>
+                        <div>
+                            <span class="text-white fw-bold d-block lh-1" style="font-size: 0.95rem;">Kost Griya Ayu</span>
+                            <span class="text-white-50" style="font-size: 0.65rem;">Management Portal</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-link text-white text-opacity-75 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar" aria-label="Tutup menu navigasi">
+                        <i class="bi bi-x-lg fs-5"></i>
+                    </button>
+                </div>
+
                 <div class="pt-2">
                     @if(Auth::user()->isSuperAdmin())
                         <div class="sidebar-heading">Menu Super Admin</div>
@@ -172,10 +191,10 @@
                             <i class="bi bi-journal-text"></i> Laporan & Audit
                         </a>
                         @endif
-                    @elseif(Auth::user()->isPemilik())
+                    @elseif(Auth::user()->isPengelola())
                         <div class="sidebar-heading">Operasional Kost</div>
                         <a href="{{ route('pemilik.dashboard') }}" class="sidebar-link {{ request()->routeIs('pemilik.dashboard') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard Pemilik
+                            <i class="bi bi-speedometer2"></i> Dashboard Pengelola
                         </a>
                         @if(Auth::user()->hasPermission('view-kamar') || Auth::user()->hasPermission('manage-kamar'))
                         <a href="{{ route('pemilik.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.kamar.*') ? 'active' : '' }}">
@@ -218,6 +237,26 @@
                         @if(Auth::user()->hasPermission('view-laporan-operasional'))
                         <a href="{{ route('pemilik.laporan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.laporan.*') ? 'active' : '' }}">
                             <i class="bi bi-file-earmark-bar-graph"></i> Laporan Rekap
+                        </a>
+                        @endif
+                    @elseif(Auth::user()->isPemilikKost())
+                        <div class="sidebar-heading">Menu Pemilik Kost</div>
+                        <a href="{{ route('pemilik-kost.dashboard') }}" class="sidebar-link {{ request()->routeIs('pemilik-kost.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard Monitoring
+                        </a>
+                        @if(Auth::user()->hasPermission('view-kamar'))
+                        <a href="{{ route('pemilik-kost.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pemilik-kost.kamar.*') ? 'active' : '' }}">
+                            <i class="bi bi-door-open"></i> Data Kamar
+                        </a>
+                        @endif
+                        @if(Auth::user()->hasPermission('view-penghuni-readonly') || Auth::user()->hasPermission('manage-penghuni'))
+                        <a href="{{ route('pemilik-kost.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pemilik-kost.penghuni.*') ? 'active' : '' }}">
+                            <i class="bi bi-people"></i> Data Penghuni
+                        </a>
+                        @endif
+                        @if(Auth::user()->hasPermission('view-laporan-operasional'))
+                        <a href="{{ route('pemilik-kost.laporan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik-kost.laporan.*') ? 'active' : '' }}">
+                            <i class="bi bi-file-earmark-bar-graph"></i> Laporan & Keuangan
                         </a>
                         @endif
                     @else
@@ -268,6 +307,9 @@
                     </a>
                 </div>
             </nav>
+
+            <!-- Mobile Sidebar Backdrop -->
+            <div class="sidebar-backdrop d-lg-none" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar" aria-label="Tutup menu"></div>
 
             <!-- Main Workspace Area -->
             <main class="col-lg-9 col-xl-10 px-md-4 py-4">

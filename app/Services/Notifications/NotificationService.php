@@ -15,15 +15,31 @@ class NotificationService
         BusinessNotification $notification,
         ?int $excludeUserId = null,
     ): void {
+        $normalizedSlug = User::normalizeRoleSlug($roleSlug);
+
         $users = User::query()
             ->where('status', 'Aktif')
-            ->whereHas('role', function ($query) use ($roleSlug): void {
-                $query->where('slug', $roleSlug);
+            ->whereHas('role', function ($query) use ($normalizedSlug): void {
+                $query->where('slug', $normalizedSlug);
             })
             ->when($excludeUserId, function ($query) use ($excludeUserId): void {
                 $query->where('id', '!=', $excludeUserId);
             })
             ->get();
+
+        // Transisi aman: jika menargetkan 'pengelola' namun belum ada user ber-role pengelola di DB,
+        // alihkan sementara ke role operasional lama 'pemilik-kost' agar notifikasi tidak hilang sebelum migrasi dijalankan.
+        if ($users->isEmpty() && $normalizedSlug === 'pengelola') {
+            $users = User::query()
+                ->where('status', 'Aktif')
+                ->whereHas('role', function ($query): void {
+                    $query->where('slug', 'pemilik-kost');
+                })
+                ->when($excludeUserId, function ($query) use ($excludeUserId): void {
+                    $query->where('id', '!=', $excludeUserId);
+                })
+                ->get();
+        }
 
         $this->sendToUsersAfterCommit($users, $notification);
     }

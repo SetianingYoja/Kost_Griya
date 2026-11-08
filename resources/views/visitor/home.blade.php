@@ -207,12 +207,15 @@
                 <span class="badge-tagline mb-2">Testimoni Penghuni</span>
                 <h2 class="display-6 fw-bold text-secondary mb-1">Rating & Ulasan Kost</h2>
             </div>
-            <div class="mt-3 mt-md-0">
+            <div class="mt-3 mt-md-0 d-flex flex-wrap align-items-center gap-2">
                 <div class="d-flex align-items-center gap-2 bg-light rounded-pill px-3 py-2 border">
                     <i class="bi bi-star-fill text-warning"></i>
                     <span class="fw-bold text-secondary">{{ number_format($avgRating ?? 0, 1) }} / 5.0</span>
                     <span class="text-muted small">({{ $totalReviews ?? 0 }} ulasan)</span>
                 </div>
+                <a href="{{ route('ulasan.index') }}" class="btn btn-outline-griya">
+                    Lihat Semua Ulasan ({{ $totalReviews }}) <i class="bi bi-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
 
@@ -248,6 +251,7 @@
                 </div>
             @endforelse
         </div>
+
     </div>
 </section>
 

@@ -225,15 +225,87 @@ h3,
     color: var(--brand-primary);
 }
 
+/* Dashboard Top Navbar Specific */
+.dashboard-navbar {
+    background-color: #ffffff !important;
+}
+
+.dashboard-navbar .navbar-brand-title {
+    font-size: 1.15rem;
+}
+
+@media (min-width: 576px) {
+    .dashboard-navbar .navbar-brand-title {
+        font-size: 1.3rem;
+    }
+}
+
 /* Sidebar Dashboard */
 .sidebar-griya {
     background: #0a4174;
     border-right: 1px solid var(--brand-border);
-    height: calc(100vh - 65px);
-    padding: 1.5rem 1rem;
-    position: sticky;
-    top: 65px;
-    overflow-y: auto;
+}
+
+/* Desktop Sidebar: sticky and full height */
+@media (min-width: 992px) {
+    .sidebar-griya {
+        height: calc(100vh - 65px);
+        padding: 1.5rem 1rem;
+        position: sticky;
+        top: 65px;
+        overflow-y: auto;
+        display: block !important;
+    }
+}
+
+/* Mobile Sidebar: floating drawer overlay (does not push content, no scroll trapping) */
+@media (max-width: 991.98px) {
+    .sidebar-griya {
+        padding: 1rem;
+    }
+
+    .sidebar-griya.collapse.show,
+    .sidebar-griya.collapsing {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        z-index: 1045 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.4) !important;
+    }
+}
+
+/* Mobile Sidebar Backdrop */
+.sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.55);
+        z-index: 1040;
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        pointer-events: none;
+    }
+
+    #dashboardSidebar.show ~ .sidebar-backdrop,
+    #dashboardSidebar.collapsing ~ .sidebar-backdrop {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+    }
 }
 
 .sidebar-heading {

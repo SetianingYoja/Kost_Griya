@@ -60,7 +60,10 @@
                 </div>
                 <div class="filter-item">
                     <label class="form-label small fw-semibold text-secondary">Tanggal Selesai Sewa</label>
-                    <input type="date" name="end_date" class="form-control bg-light" value="{{ request('end_date') }}">
+                    <input type="date" name="end_date" class="form-control bg-light @error('end_date') is-invalid @enderror" value="{{ request('end_date') }}">
+                    @error('end_date')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
 
@@ -85,17 +88,23 @@
                     <div class="card-griya h-100 d-flex flex-column">
                         <div class="room-img-wrapper">
                             <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}">
-                            <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
-                                @if($kamar->status === 'Tersedia')
-                                    <i class="bi bi-check-circle-fill me-1"></i> Tersedia
-                                @elseif($kamar->status === 'Sedang Diproses')
-                                    <i class="bi bi-clock-history me-1"></i> Sedang Diproses
-                                @elseif($kamar->status === 'Terisi')
-                                    <i class="bi bi-x-circle-fill me-1"></i> Terisi
-                                @else
-                                    <i class="bi bi-slash-circle me-1"></i> Tidak Tersedia
-                                @endif
-                            </span>
+                            @if(request()->filled('start_date') && request()->filled('end_date') && ! $errors->has('end_date'))
+                                <span class="room-badge-status status-tersedia">
+                                    <i class="bi bi-calendar-check-fill me-1"></i> Tersedia
+                                </span>
+                            @else
+                                <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}">
+                                    @if($kamar->status === 'Tersedia')
+                                        <i class="bi bi-check-circle-fill me-1"></i> Tersedia
+                                    @elseif($kamar->status === 'Sedang Diproses')
+                                        <i class="bi bi-clock-history me-1"></i> Sedang Diproses
+                                    @elseif($kamar->status === 'Terisi')
+                                        <i class="bi bi-x-circle-fill me-1"></i> Terisi
+                                    @else
+                                        <i class="bi bi-slash-circle me-1"></i> Tidak Tersedia
+                                    @endif
+                                </span>
+                            @endif
                         </div>
                         <div class="p-4 d-flex flex-column flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center mb-1">

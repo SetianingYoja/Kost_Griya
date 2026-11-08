@@ -16,15 +16,22 @@ class RolePermissionSeeder extends Seeder
             $legacySuperAdmin->save();
         }
 
-        // 1. Buat Roles
+        // 1. Buat / pastikan semua Roles ada
         $superAdmin = Role::firstOrCreate(
             ['slug' => 'super-admin'],
             ['name' => 'Super Admin', 'description' => 'Pengelola sistem tingkat penuh, user, role, dan permission.']
         );
 
-        $pemilik = Role::firstOrCreate(
+        // Role pengelola: mengelola seluruh operasional kost
+        $pengelola = Role::firstOrCreate(
+            ['slug' => 'pengelola'],
+            ['name' => 'Pengelola', 'description' => 'Pengelola operasional kost: kamar, booking, pembayaran, tagihan, keluhan, perpanjangan, dan laporan operasional.']
+        );
+
+        // Role pemilik-kost: read-only, hanya memantau data dan laporan
+        $pemilikKost = Role::firstOrCreate(
             ['slug' => 'pemilik-kost'],
-            ['name' => 'Pemilik Kost', 'description' => 'Pengelola operasional kost, kamar, booking, pembayaran, dan keluhan.']
+            ['name' => 'Pemilik Kost', 'description' => 'Pemilik kost: akses read-only untuk memantau data, laporan, dan statistik operasional.']
         );
 
         $penghuni = Role::firstOrCreate(
@@ -47,6 +54,8 @@ class RolePermissionSeeder extends Seeder
             // Penghuni
             ['name' => 'Kelola Data Penghuni', 'slug' => 'manage-penghuni', 'module' => 'Penghuni', 'description' => 'Melihat seluruh data penyewa kamar.'],
             ['name' => 'Lihat Data Sendiri', 'slug' => 'view-self-profile', 'module' => 'Penghuni', 'description' => 'Melihat profil dan data sewa sendiri.'],
+            // Permission baru: Pemilik Kost boleh melihat daftar penghuni (read-only, tanpa edit)
+            ['name' => 'Lihat Data Penghuni', 'slug' => 'view-penghuni-readonly', 'module' => 'Penghuni', 'description' => 'Melihat daftar dan detail penghuni secara read-only (tanpa edit).'],
 
             // Booking
             ['name' => 'Validasi Booking', 'slug' => 'validate-booking', 'module' => 'Booking', 'description' => 'Menyetujui atau menolak pesanan kamar.'],
@@ -80,14 +89,17 @@ class RolePermissionSeeder extends Seeder
         }
 
         // 3. Kaitkan Permissions ke Roles
-        // Super Admin gets all permissions
-        $superAdmin->permissions()->sync(array_values(array_map(fn ($pm) => $pm->id, $permissionModels)));
 
-        // Pemilik Kost
-        $pemilikPermissions = [
+        // Super Admin: selalu memiliki seluruh permissions yang ada di sistem (baik yang didefinisikan di seeder maupun yang sudah ada di database)
+        $allPermissionIds = Permission::pluck('id')->all();
+        $superAdmin->permissions()->sync($allPermissionIds);
+
+        // Pengelola: semua permissions operasional (kecuali user/role/system management)
+        $pengelolaPermissions = [
             'manage-kamar',
             'view-kamar',
             'manage-penghuni',
+            'view-penghuni-readonly',
             'validate-booking',
             'validate-pembayaran',
             'manage-tagihan',
@@ -95,8 +107,17 @@ class RolePermissionSeeder extends Seeder
             'manage-rating',
             'view-laporan-operasional',
         ];
-        $pemilikIds = array_filter(array_map(fn ($slug) => $permissionModels[$slug]->id ?? null, $pemilikPermissions));
-        $pemilik->permissions()->sync($pemilikIds);
+        $pengelolaIds = array_filter(array_map(fn ($slug) => $permissionModels[$slug]->id ?? null, $pengelolaPermissions));
+        $pengelola->permissions()->sync($pengelolaIds);
+
+        // Pemilik Kost: read-only — hanya lihat data dan laporan, tidak bisa ubah apapun
+        $pemilikKostPermissions = [
+            'view-kamar',
+            'view-penghuni-readonly',
+            'view-laporan-operasional',
+        ];
+        $pemilikKostIds = array_filter(array_map(fn ($slug) => $permissionModels[$slug]->id ?? null, $pemilikKostPermissions));
+        $pemilikKost->permissions()->sync($pemilikKostIds);
 
         // Penghuni
         $penghuniPermissions = [

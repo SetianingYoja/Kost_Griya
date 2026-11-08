@@ -170,7 +170,7 @@ class PembayaranController extends Controller
             ['entity_type' => 'pembayaran', 'entity_id' => $pembayaran->id, 'actor_id' => Auth::id()]
         );
 
-        $this->notificationService->sendToRoleAfterCommit('pemilik-kost', $notification, Auth::id());
+        $this->notificationService->sendToRoleAfterCommit('pengelola', $notification, Auth::id());
         $this->notificationService->sendToRoleAfterCommit('super-admin', $notification, Auth::id());
 
         return redirect()->route('penghuni.dashboard')

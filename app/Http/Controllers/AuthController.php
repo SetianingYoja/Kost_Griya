@@ -129,8 +129,10 @@ class AuthController extends Controller
     {
         if ($user->isSuperAdmin()) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->isPemilik()) {
+        } elseif ($user->isPengelola()) {
             return redirect()->route('pemilik.dashboard');
+        } elseif ($user->isPemilikKost()) {
+            return redirect()->route('pemilik-kost.dashboard');
         } else {
             return redirect()->route('penghuni.dashboard');
         }

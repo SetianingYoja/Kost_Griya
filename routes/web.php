@@ -30,6 +30,10 @@ use App\Http\Controllers\Pemilik\PenghuniController as PemilikPenghuniController
 use App\Http\Controllers\Pemilik\PerpanjanganController as PemilikPerpanjanganController;
 use App\Http\Controllers\Pemilik\RatingController as PemilikRatingController;
 use App\Http\Controllers\Pemilik\TagihanController as PemilikTagihanController;
+use App\Http\Controllers\PemilikKost\DashboardController as PemilikKostDashboardController;
+use App\Http\Controllers\PemilikKost\KamarController as PemilikKostKamarController;
+use App\Http\Controllers\PemilikKost\LaporanController as PemilikKostLaporanController;
+use App\Http\Controllers\PemilikKost\PenghuniController as PemilikKostPenghuniController;
 use App\Http\Controllers\Penghuni\BookingController as PenghuniBookingController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
 use App\Http\Controllers\Penghuni\KeluhanController as PenghuniKeluhanController;
@@ -52,6 +56,9 @@ Route::get('/kamar', [VisitorController::class, 'kamarIndex'])
 
 Route::get('/kamar/{id}', [VisitorController::class, 'kamarDetail'])
     ->name('kamar.detail');
+
+Route::get('/ulasan', [VisitorController::class, 'ulasanIndex'])
+    ->name('ulasan.index');
 
 Route::get('/tentang', [VisitorController::class, 'tentang'])
     ->name('tentang');
@@ -168,11 +175,12 @@ Route::middleware(['auth', 'role:super-admin'])
 
 /*
 |--------------------------------------------------------------------------
-| Pemilik
+| Pengelola (Operasional Kost)
+| Menggunakan dashboard dan rute operasional pemilik yang sudah lengkap
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:pemilik-kost'])
+Route::middleware(['auth', 'role:pengelola'])
     ->prefix('pemilik')
     ->name('pemilik.')
     ->group(function () {
@@ -293,6 +301,44 @@ Route::middleware(['auth', 'role:pemilik-kost'])
         Route::middleware('permission:view-laporan-operasional')->group(function () {
             Route::get('/laporan', [PemilikLaporanController::class, 'index'])
                 ->name('laporan.index');
+        });
+    });
+
+// Alias rute dashboard pengelola
+Route::get('/pengelola/dashboard', fn () => redirect()->route('pemilik.dashboard'))
+    ->middleware(['auth', 'role:pengelola'])
+    ->name('pengelola.dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| Pemilik Kost (Read-Only Monitoring & Laporan)
+| Khusus monitoring, tanpa akses aksi mutasi data operasional
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:pemilik-kost'])
+    ->prefix('pemilik-kost')
+    ->name('pemilik-kost.')
+    ->group(function () {
+
+        Route::get('/dashboard', [PemilikKostDashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Kamar (Read-only)
+        Route::middleware('permission:view-kamar')->group(function () {
+            Route::get('/kamar', [PemilikKostKamarController::class, 'index'])->name('kamar.index');
+            Route::get('/kamar/{id}', [PemilikKostKamarController::class, 'show'])->name('kamar.show');
+        });
+
+        // Penghuni (Read-only)
+        Route::middleware('permission:view-penghuni-readonly,manage-penghuni')->group(function () {
+            Route::get('/penghuni', [PemilikKostPenghuniController::class, 'index'])->name('penghuni.index');
+            Route::get('/penghuni/{id}', [PemilikKostPenghuniController::class, 'show'])->name('penghuni.show');
+        });
+
+        // Laporan Operasional & Keuangan (Read-only)
+        Route::middleware('permission:view-laporan-operasional')->group(function () {
+            Route::get('/laporan', [PemilikKostLaporanController::class, 'index'])->name('laporan.index');
         });
     });
 

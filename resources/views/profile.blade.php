@@ -18,27 +18,32 @@
                     </div>
                 </div>
 
-                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('profile.update') }}" method="POST">
                     @csrf
                     @method('PUT')
                     
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold text-secondary">Nama Lengkap</label>
-                            <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                            @error('name')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold text-secondary">Alamat Email</label>
-                            <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                            <small class="text-muted">Email dapat diperbarui selama menggunakan format yang valid dan belum digunakan akun lain.</small>
+                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                            <small class="text-muted d-block mt-1">Email dapat diperbarui selama menggunakan format yang valid dan belum digunakan akun lain.</small>
+                            @error('email')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold text-secondary">Nomor WhatsApp</label>
-                            <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone) }}" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-semibold text-secondary">Foto Avatar</label>
-                            <input type="file" name="avatar" class="form-control" accept="image/*">
+                            <input type="text" name="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', $user->phone) }}" required>
+                            @error('phone')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 

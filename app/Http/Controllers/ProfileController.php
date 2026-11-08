@@ -26,13 +26,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['required', 'string', 'max:25'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
-
-        if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->avatar = $path;
-        }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
