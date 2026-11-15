@@ -50,6 +50,11 @@
                             <option value="Terisi" {{ old('status', $kamar->status) == 'Terisi' ? 'selected' : '' }}>Terisi</option>
                             <option value="Tidak tersedia" {{ old('status', $kamar->status) == 'Tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
                         </select>
+                        @if($kamar->sewas()->where('status', 'Aktif')->exists())
+                            <small class="text-danger d-block mt-1">
+                                <i class="bi bi-info-circle me-1"></i>Kamar ini memiliki sewa aktif. Status tidak dapat diubah ke Tersedia.
+                            </small>
+                        @endif
                     </div>
                 </div>
 

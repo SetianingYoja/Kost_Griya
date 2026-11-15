@@ -165,12 +165,12 @@
                     <button type="button" class="gallery-lightbox-trigger" data-index="0" data-image="{{ $kamar->foto_url }}" data-caption="{{ $kamar->nomor_kamar }}" aria-label="Lihat foto utama kamar">
                         <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}" class="w-100 h-100 object-fit-contain" style="display: block; object-fit: contain;">
                     </button>
-                    <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->status)) }}" style="top: 20px; right: 20px; font-size: 0.9rem; padding: 0.5rem 1rem;">
-                        @if($kamar->status === 'Tersedia')
+                    <span class="room-badge-status status-{{ strtolower(str_replace(' ', '-', $kamar->effective_status)) }}" style="top: 20px; right: 20px; font-size: 0.9rem; padding: 0.5rem 1rem;">
+                        @if($kamar->effective_status === 'Tersedia')
                             <i class="bi bi-check-circle-fill me-1"></i> Tersedia untuk Dipesan
-                        @elseif($kamar->status === 'Sedang Diproses')
+                        @elseif($kamar->effective_status === 'Sedang Diproses')
                             <i class="bi bi-clock-history me-1"></i> Sedang Diproses Booking
-                        @elseif($kamar->status === 'Terisi')
+                        @elseif($kamar->effective_status === 'Terisi')
                             <i class="bi bi-x-circle-fill me-1"></i> Sedang Terisi
                         @else
                             <i class="bi bi-slash-circle me-1"></i> Sedang Tidak Tersedia
@@ -331,19 +331,19 @@
                     </div>
                     <div class="d-flex justify-content-between">
                         <span class="text-muted small">Status Kamar:</span>
-                        @if($kamar->status === 'Tersedia')
+                        @if($kamar->effective_status === 'Tersedia')
                             <span class="badge bg-success">Tersedia</span>
-                        @elseif($kamar->status === 'Sedang Diproses')
+                        @elseif($kamar->effective_status === 'Sedang Diproses')
                             <span class="badge bg-warning text-dark">Sedang Diproses</span>
-                        @elseif($kamar->status === 'Terisi')
+                        @elseif($kamar->effective_status === 'Terisi')
                             <span class="badge bg-danger">Terisi</span>
                         @else
-                            <span class="badge bg-secondary">{{ $kamar->status }}</span>
+                            <span class="badge bg-secondary">{{ $kamar->effective_status }}</span>
                         @endif
                     </div>
                 </div>
 
-                @if($kamar->status === 'Tersedia')
+                @if($kamar->isAvailableForBooking())
                     @auth
                         @if(Auth::user()->isPenghuni())
                             <form action="{{ route('penghuni.booking.store') }}" method="POST">
@@ -460,13 +460,17 @@
                         </div>
                     @endauth
                 @else
-                    @if($kamar->status === 'Sedang Diproses')
+                    @if($kamar->effective_status === 'Sedang Diproses')
                         <div class="alert alert-warning mb-3">
                             <i class="bi bi-clock-history me-1"></i> Kamar ini <strong>Sedang Diproses Booking</strong> oleh calon penghuni lain.
                         </div>
+                    @elseif($kamar->effective_status === 'Terisi')
+                        <div class="alert alert-warning mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Kamar ini sedang <strong>Terisi</strong> dan tidak dapat dibooking saat ini.
+                        </div>
                     @else
                         <div class="alert alert-warning mb-3">
-                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Kamar ini sedang <strong>{{ $kamar->status }}</strong> dan tidak dapat dibooking saat ini.
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Kamar ini sedang <strong>{{ $kamar->effective_status }}</strong> dan tidak dapat dibooking saat ini.
                         </div>
                     @endif
                     <a href="{{ route('kamar.index') }}" class="btn btn-outline-griya w-100">

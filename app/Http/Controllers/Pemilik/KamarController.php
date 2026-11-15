@@ -131,6 +131,10 @@ class KamarController extends Controller
             'fotos.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:3072'],
         ]);
 
+        if ($validated['status'] === 'Tersedia' && $kamar->sewas()->where('status', 'Aktif')->exists()) {
+            return back()->withInput()->with('error', 'Status kamar tidak dapat diubah menjadi Tersedia karena kamar masih memiliki sewa aktif.');
+        }
+
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('kamar', 'public');
             $kamar->foto = $path;

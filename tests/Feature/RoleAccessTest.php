@@ -190,4 +190,40 @@ class RoleAccessTest extends TestCase
         $penghuniRedirect = $authController->redirectBasedOnRole($penghuni);
         $this->assertSame(route('penghuni.dashboard'), $penghuniRedirect->getTargetUrl());
     }
+
+    public function test_user_management_displays_correct_role_badges_for_all_roles(): void
+    {
+        $adminRole = $this->createRoleWithPermissions('Super Admin', 'super-admin');
+        $pengelolaRole = $this->createRoleWithPermissions('Pengelola', 'pengelola');
+        $pemilikRole = $this->createRoleWithPermissions('Pemilik Kost', 'pemilik-kost');
+        $penghuniRole = $this->createRoleWithPermissions('Penghuni', 'penghuni');
+
+        $admin = User::factory()->create([
+            'role_id' => $adminRole->id,
+            'status' => 'Aktif',
+            'name' => 'Admin User',
+        ]);
+        User::factory()->create([
+            'role_id' => $pengelolaRole->id,
+            'status' => 'Aktif',
+            'name' => 'Pengelola User',
+        ]);
+        User::factory()->create([
+            'role_id' => $pemilikRole->id,
+            'status' => 'Aktif',
+            'name' => 'Pemilik User',
+        ]);
+        User::factory()->create([
+            'role_id' => $penghuniRole->id,
+            'status' => 'Aktif',
+            'name' => 'Penghuni User',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.users.index'));
+        $response->assertOk();
+        $response->assertSee('<span class="badge bg-danger">Super Admin</span>', false);
+        $response->assertSee('<span class="badge bg-primary">Pemilik Kost</span>', false);
+        $response->assertSee('<span class="badge bg-warning text-dark">Pengelola</span>', false);
+        $response->assertSee('<span class="badge bg-info text-dark">Penghuni</span>', false);
+    }
 }

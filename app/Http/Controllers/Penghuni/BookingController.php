@@ -82,9 +82,22 @@ class BookingController extends Controller
             $booking = DB::transaction(function () use ($request, &$blockedMessage) {
                 // 1. Terapkan lockForUpdate() pada baris kamar sebelum memeriksa ketersediaan
                 $kamar = Kamar::lockForUpdate()->findOrFail($request->kamar_id);
+                $namaKamar = $kamar->display_name;
 
                 if (! $kamar->isAvailableForBooking()) {
-                    $blockedMessage = 'Kamar '.$kamar->nomor_kamar.' saat ini sedang '.$kamar->status.' dan tidak dapat dibooking.';
+                    if ($kamar->sewas()->where('status', 'Aktif')->exists()) {
+                        $blockedMessage = $namaKamar.' saat ini sedang disewa aktif dan tidak dapat dibooking.';
+                    } elseif ($kamar->bookings()
+                        ->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi', 'Aktif'])
+                        ->where(function ($q) {
+                            $q->whereNull('batas_pembayaran')
+                                ->orWhere('batas_pembayaran', '>', Carbon::now());
+                        })
+                        ->exists()) {
+                        $blockedMessage = $namaKamar.' sedang dalam proses booking oleh calon penghuni lain.';
+                    } else {
+                        $blockedMessage = $namaKamar.' saat ini berstatus '.$kamar->status.' dan tidak dapat dibooking.';
+                    }
 
                     return null;
                 }
@@ -98,7 +111,8 @@ class BookingController extends Controller
                     ->first();
 
                 if ($activeSewa) {
-                    $blockedMessage = 'Anda masih memiliki sewa aktif pada kamar '.($activeSewa->kamar->nomor_kamar ?? '-').'. Booking baru dapat dilakukan setelah Pemilik Kost mengonfirmasi sewa tersebut selesai.';
+                    $activeSewaKamar = $activeSewa->kamar ? $activeSewa->kamar->display_name : 'kamar lain';
+                    $blockedMessage = 'Anda masih memiliki sewa aktif pada '.$activeSewaKamar.'. Booking baru dapat dilakukan setelah Pemilik Kost mengonfirmasi sewa tersebut selesai.';
 
                     return null;
                 }
@@ -163,8 +177,8 @@ class BookingController extends Controller
                 $kamar->save();
 
                 $catatanRiwayat = $tipePembayaran === 'Lunas'
-                    ? 'Membuat booking untuk kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan pembayaran LUNAS via QRIS.'
-                    : 'Membuat booking untuk kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dengan DP QRIS.';
+                    ? 'Membuat booking untuk '.$namaKamar.' ('.$kodeBooking.') dengan pembayaran LUNAS via QRIS.'
+                    : 'Membuat booking untuk '.$namaKamar.' ('.$kodeBooking.') dengan DP QRIS.';
 
                 RiwayatAktivitas::catat(
                     $user->id,
@@ -177,7 +191,7 @@ class BookingController extends Controller
                     'booking',
                     'menunggu_pembayaran',
                     'Booking Baru Menunggu Pembayaran',
-                    'Calon penghuni '.$user->name.' telah membuat booking kamar '.$kamar->nomor_kamar.' ('.$kodeBooking.') dan diarahkan ke pembayaran QRIS.',
+                    'Calon penghuni '.$user->name.' telah membuat booking '.$namaKamar.' ('.$kodeBooking.') dan diarahkan ke pembayaran QRIS.',
                     'booking:'.$booking->id.':menunggu_pembayaran',
                     ['entity_type' => 'booking', 'entity_id' => $booking->id, 'actor_id' => $user->id]
                 );

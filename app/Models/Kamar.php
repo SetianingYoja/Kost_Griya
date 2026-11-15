@@ -107,6 +107,44 @@ class Kamar extends Model
     }
 
     /**
+     * Mendapatkan status operasional riil dari kamar dengan mempertimbangkan sewa aktif dan booking dalam proses.
+     */
+    public function getEffectiveStatusAttribute(): string
+    {
+        if ($this->status !== 'Tersedia') {
+            return $this->status;
+        }
+
+        if ($this->sewas()->where('status', 'Aktif')->exists()) {
+            return 'Terisi';
+        }
+
+        $hasInProcessBooking = $this->bookings()
+            ->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi', 'Aktif'])
+            ->where(function ($q) {
+                $q->whereNull('batas_pembayaran')
+                    ->orWhere('batas_pembayaran', '>', Carbon::now());
+            })
+            ->exists();
+
+        if ($hasInProcessBooking) {
+            return 'Sedang Diproses';
+        }
+
+        return 'Tersedia';
+    }
+
+    /**
+     * Nama kamar terformat agar rapi dan tidak menghasilkan duplikasi seperti "Kamar kamar 20".
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return preg_match('/^kamar\s+/i', $this->nomor_kamar)
+            ? ucfirst($this->nomor_kamar)
+            : 'Kamar '.$this->nomor_kamar;
+    }
+
+    /**
      * Mengembalikan status kamar ke 'Tersedia' hanya jika tidak ada sewa aktif,
      * tidak ada pembayaran yang sah/menunggu validasi, dan tidak ada booking aktif lainnya.
      */

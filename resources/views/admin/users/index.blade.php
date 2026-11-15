@@ -66,8 +66,12 @@
                                 <span class="badge bg-danger">Super Admin</span>
                             @elseif($u->role && $u->role->slug === 'pemilik-kost')
                                 <span class="badge bg-primary">Pemilik Kost</span>
-                            @else
+                            @elseif($u->role && $u->role->slug === 'pengelola')
+                                <span class="badge bg-warning text-dark">Pengelola</span>
+                            @elseif($u->role && $u->role->slug === 'penghuni')
                                 <span class="badge bg-info text-dark">Penghuni</span>
+                            @else
+                                <span class="badge bg-secondary">{{ $u->role->name ?? '-' }}</span>
                             @endif
                         </td>
                         <td>

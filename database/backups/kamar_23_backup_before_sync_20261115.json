@@ -1,0 +1,131 @@
+{
+    "backup_time": "2026-11-15 20:40:17",
+    "kamar": {
+        "id": 23,
+        "tipe_kamar_id": 1,
+        "nomor_kamar": "kamar 20",
+        "lantai": 1,
+        "harga": "950000.00",
+        "fasilitas": "ac, tv km dalem",
+        "deskripsi": null,
+        "foto": "kamar\/zVBK9IYFw11KIPO8qbAnUTXJ75XcyH9o9ynKa7y2.jpg",
+        "status": "Tersedia",
+        "created_at": "2026-09-30T02:29:30.000000Z",
+        "updated_at": "2026-10-14T07:04:54.000000Z",
+        "sewas": [
+            {
+                "id": 25,
+                "user_id": 22,
+                "kamar_id": 23,
+                "booking_id": 38,
+                "tanggal_mulai": "2026-10-31T17:00:00.000000Z",
+                "tanggal_selesai": "2026-11-29T17:00:00.000000Z",
+                "status": "Aktif",
+                "harga_per_bulan": "950000.00",
+                "created_at": "2026-10-14T06:57:07.000000Z",
+                "updated_at": "2026-10-14T06:57:07.000000Z"
+            }
+        ],
+        "bookings": [
+            {
+                "id": 38,
+                "kode_booking": "BKG-20261014-GN8FN",
+                "user_id": 22,
+                "kamar_id": 23,
+                "tanggal_mulai": "2026-10-31T17:00:00.000000Z",
+                "durasi_bulan": 1,
+                "tipe_pembayaran": "Lunas",
+                "total_harga": "950000.00",
+                "nominal_dp": "0.00",
+                "midtrans_order_id": "QRIS-BKG-20261014-GN8FN-1791960844",
+                "midtrans_snap_token": "634c5e8c-8272-4f14-8f9f-59acc919a361",
+                "midtrans_status": "settlement",
+                "midtrans_paid_at": "2026-10-14T06:55:46.000000Z",
+                "catatan": null,
+                "status": "Selesai",
+                "alasan_penolakan": null,
+                "batas_pembayaran": "2026-10-15T06:53:46.000000Z",
+                "created_at": "2026-10-14T06:44:54.000000Z",
+                "updated_at": "2026-10-14T06:57:07.000000Z",
+                "pembayarans": [
+                    {
+                        "id": 52,
+                        "kode_pembayaran": "PAY-20261014-ZVWL4",
+                        "user_id": 22,
+                        "booking_id": 38,
+                        "tagihan_id": null,
+                        "perpanjangan_id": null,
+                        "jenis_pembayaran": "Booking Awal",
+                        "nominal": "950000.00",
+                        "metode_pembayaran": "QRIS",
+                        "midtrans_transaction_id": "9665ca7d-2ba5-4565-b5f9-55e3bd95f0d1",
+                        "midtrans_payment_type": "qris",
+                        "nama_pengirim": null,
+                        "bank_pengirim": null,
+                        "bukti_pembayaran": null,
+                        "tanggal_bayar": "2026-10-13T17:00:00.000000Z",
+                        "status": "Lunas",
+                        "catatan_penghuni": "Pembayaran Lunas QRIS via Midtrans (Order ID: QRIS-BKG-20261014-GN8FN-1791960844)",
+                        "catatan_pemilik": "Pembayaran telah divalidasi dan diterima.",
+                        "catatan_refund": null,
+                        "tanggal_refund": null,
+                        "diverifikasi_pada": "2026-10-14T06:57:07.000000Z",
+                        "created_at": "2026-10-14T06:55:46.000000Z",
+                        "updated_at": "2026-10-14T06:57:07.000000Z"
+                    }
+                ]
+            }
+        ]
+    },
+    "active_sewa": [
+        {
+            "id": 25,
+            "user_id": 22,
+            "kamar_id": 23,
+            "booking_id": 38,
+            "tanggal_mulai": "2026-10-31T17:00:00.000000Z",
+            "tanggal_selesai": "2026-11-29T17:00:00.000000Z",
+            "status": "Aktif",
+            "harga_per_bulan": "950000.00",
+            "created_at": "2026-10-14T06:57:07.000000Z",
+            "updated_at": "2026-10-14T06:57:07.000000Z"
+        }
+    ],
+    "all_sewa": [
+        {
+            "id": 25,
+            "user_id": 22,
+            "kamar_id": 23,
+            "booking_id": 38,
+            "tanggal_mulai": "2026-10-31T17:00:00.000000Z",
+            "tanggal_selesai": "2026-11-29T17:00:00.000000Z",
+            "status": "Aktif",
+            "harga_per_bulan": "950000.00",
+            "created_at": "2026-10-14T06:57:07.000000Z",
+            "updated_at": "2026-10-14T06:57:07.000000Z"
+        }
+    ],
+    "all_bookings": [
+        {
+            "id": 38,
+            "kode_booking": "BKG-20261014-GN8FN",
+            "user_id": 22,
+            "kamar_id": 23,
+            "tanggal_mulai": "2026-10-31T17:00:00.000000Z",
+            "durasi_bulan": 1,
+            "tipe_pembayaran": "Lunas",
+            "total_harga": "950000.00",
+            "nominal_dp": "0.00",
+            "midtrans_order_id": "QRIS-BKG-20261014-GN8FN-1791960844",
+            "midtrans_snap_token": "634c5e8c-8272-4f14-8f9f-59acc919a361",
+            "midtrans_status": "settlement",
+            "midtrans_paid_at": "2026-10-14T06:55:46.000000Z",
+            "catatan": null,
+            "status": "Selesai",
+            "alasan_penolakan": null,
+            "batas_pembayaran": "2026-10-15T06:53:46.000000Z",
+            "created_at": "2026-10-14T06:44:54.000000Z",
+            "updated_at": "2026-10-14T06:57:07.000000Z"
+        }
+    ]
+}
