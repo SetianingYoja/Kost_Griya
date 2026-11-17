@@ -59,7 +59,7 @@
                         <div class="form-control bg-white" style="min-height: 100px;">{{ $keluhan->tanggapan ?: 'Belum ada tanggapan.' }}</div>
                     </div>
                     
-                    <div class="alert alert-info small mb-0"><i class="bi bi-info-circle me-1"></i> Mode View Only. Anda masuk sebagai Super Admin. Penanganan keluhan hanya dapat dilakukan oleh Pemilik Kost.</div>
+                    <div class="alert alert-info small mb-0"><i class="bi bi-info-circle me-1"></i> Mode View Only. Anda masuk sebagai Super Admin. Penanganan keluhan hanya dapat dilakukan oleh Pengelola Kost.</div>
                 @else
                     <form action="{{ route('pemilik.keluhan.update', $keluhan->id) }}" method="POST">
                         @csrf

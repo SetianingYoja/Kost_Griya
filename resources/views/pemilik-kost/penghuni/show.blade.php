@@ -87,7 +87,7 @@
                         <tr>
                             <th>Nomor</th>
                             <th>Periode</th>
-                            <th>Total</th>
+                            <th>Nominal Tagihan</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -96,7 +96,7 @@
                             <tr>
                                 <td>{{ $tagihan->nomor_tagihan }}</td>
                                 <td>{{ $tagihan->periode }}</td>
-                                <td>Rp {{ number_format($tagihan->total_bayar, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($tagihan->nominal, 0, ',', '.') }}</td>
                                 <td><span class="badge bg-{{ $tagihan->status === 'Lunas' ? 'success' : 'danger' }}">{{ $tagihan->status }}</span></td>
                             </tr>
                         @empty

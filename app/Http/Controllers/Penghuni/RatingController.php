@@ -25,7 +25,11 @@ class RatingController extends Controller
         }
 
         $booking = $sewa->booking;
-        $hasApprovedBooking = $booking && $booking->status === 'Selesai';
+
+        // Booking berstatus 'Aktif' berasal dari jalur QRIS/Midtrans (otomatis aktif setelah settlement).
+        // Booking berstatus 'Selesai' berasal dari jalur transfer manual yang divalidasi Pengelola.
+        // Keduanya merupakan kondisi sewa yang sah dan berhak memberi rating.
+        $hasApprovedBooking = $booking && in_array($booking->status, ['Aktif', 'Selesai'], true);
         $hasLunasPayment = $booking && $booking->pembayarans()->where('status', 'Lunas')->exists();
 
         if (! $hasApprovedBooking || ! $hasLunasPayment) {

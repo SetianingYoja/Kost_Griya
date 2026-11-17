@@ -20,16 +20,16 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\LaporanSistemController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Pemilik\BookingController as PemilikBookingController;
-use App\Http\Controllers\Pemilik\DashboardController as PemilikDashboardController;
-use App\Http\Controllers\Pemilik\KamarController as PemilikKamarController;
-use App\Http\Controllers\Pemilik\KeluhanController as PemilikKeluhanController;
-use App\Http\Controllers\Pemilik\LaporanController as PemilikLaporanController;
-use App\Http\Controllers\Pemilik\PembayaranController as PemilikPembayaranController;
-use App\Http\Controllers\Pemilik\PenghuniController as PemilikPenghuniController;
-use App\Http\Controllers\Pemilik\PerpanjanganController as PemilikPerpanjanganController;
-use App\Http\Controllers\Pemilik\RatingController as PemilikRatingController;
-use App\Http\Controllers\Pemilik\TagihanController as PemilikTagihanController;
+use App\Http\Controllers\Pengelola\BookingController as PengelolaBookingController;
+use App\Http\Controllers\Pengelola\DashboardController as PengelolaDashboardController;
+use App\Http\Controllers\Pengelola\KamarController as PengelolaKamarController;
+use App\Http\Controllers\Pengelola\KeluhanController as PengelolaKeluhanController;
+use App\Http\Controllers\Pengelola\LaporanController as PengelolaLaporanController;
+use App\Http\Controllers\Pengelola\PembayaranController as PengelolaPembayaranController;
+use App\Http\Controllers\Pengelola\PenghuniController as PengelolaPenghuniController;
+use App\Http\Controllers\Pengelola\PerpanjanganController as PengelolaPerpanjanganController;
+use App\Http\Controllers\Pengelola\RatingController as PengelolaRatingController;
+use App\Http\Controllers\Pengelola\TagihanController as PengelolaTagihanController;
 use App\Http\Controllers\PemilikKost\DashboardController as PemilikKostDashboardController;
 use App\Http\Controllers\PemilikKost\KamarController as PemilikKostKamarController;
 use App\Http\Controllers\PemilikKost\LaporanController as PemilikKostLaporanController;
@@ -181,133 +181,136 @@ Route::middleware(['auth', 'role:super-admin'])
 */
 
 Route::middleware(['auth', 'role:pengelola'])
-    ->prefix('pemilik')
-    ->name('pemilik.')
+    ->prefix('pengelola')
+    ->name('pengelola.')
     ->group(function () {
 
-        Route::get('/dashboard', [PemilikDashboardController::class, 'index'])
+        Route::get('/dashboard', [PengelolaDashboardController::class, 'index'])
             ->name('dashboard');
 
         // Kamar
         Route::middleware('permission:manage-kamar')->group(function () {
-            Route::get('/kamar/create', [PemilikKamarController::class, 'create'])->name('kamar.create');
-            Route::post('/kamar', [PemilikKamarController::class, 'store'])->name('kamar.store');
-            Route::get('/kamar/{id}/edit', [PemilikKamarController::class, 'edit'])->name('kamar.edit');
-            Route::put('/kamar/{id}', [PemilikKamarController::class, 'update'])->name('kamar.update');
-            Route::delete('/kamar/{id}', [PemilikKamarController::class, 'destroy'])->name('kamar.destroy');
+            Route::get('/kamar/create', [PengelolaKamarController::class, 'create'])->name('kamar.create');
+            Route::post('/kamar', [PengelolaKamarController::class, 'store'])->name('kamar.store');
+            Route::get('/kamar/{id}/edit', [PengelolaKamarController::class, 'edit'])->name('kamar.edit');
+            Route::put('/kamar/{id}', [PengelolaKamarController::class, 'update'])->name('kamar.update');
+            Route::delete('/kamar/{id}', [PengelolaKamarController::class, 'destroy'])->name('kamar.destroy');
         });
 
         Route::middleware('permission:view-kamar')->group(function () {
-            Route::get('/kamar', [PemilikKamarController::class, 'index'])->name('kamar.index');
-            Route::get('/kamar/{id}', [PemilikKamarController::class, 'show'])->name('kamar.show');
+            Route::get('/kamar', [PengelolaKamarController::class, 'index'])->name('kamar.index');
+            Route::get('/kamar/{id}', [PengelolaKamarController::class, 'show'])->name('kamar.show');
         });
 
         // Booking
         Route::middleware('permission:validate-booking')->group(function () {
-            Route::get('/booking', [PemilikBookingController::class, 'index'])->name('booking.index');
-            Route::get('/booking/{id}', [PemilikBookingController::class, 'show'])->name('booking.show');
-            Route::patch('/booking/{id}/approve', [PemilikBookingController::class, 'approve'])->name('booking.approve');
-            Route::patch('/booking/{id}/reject', [PemilikBookingController::class, 'reject'])->name('booking.reject');
+            Route::get('/booking', [PengelolaBookingController::class, 'index'])->name('booking.index');
+            Route::get('/booking/{id}', [PengelolaBookingController::class, 'show'])->name('booking.show');
+            Route::patch('/booking/{id}/approve', [PengelolaBookingController::class, 'approve'])->name('booking.approve');
+            Route::patch('/booking/{id}/reject', [PengelolaBookingController::class, 'reject'])->name('booking.reject');
         });
 
         // Penghuni
         Route::middleware('permission:manage-penghuni')->group(function () {
-            Route::get('/penghuni', [PemilikPenghuniController::class, 'index'])
+            Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])
                 ->name('penghuni.index');
 
-            Route::get('/penghuni/{id}', [PemilikPenghuniController::class, 'show'])
+            Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])
                 ->name('penghuni.show');
         });
 
         // Tagihan
         Route::middleware('permission:manage-tagihan')->group(function () {
-            Route::get('/tagihan', [PemilikTagihanController::class, 'index'])
+            Route::get('/tagihan', [PengelolaTagihanController::class, 'index'])
                 ->name('tagihan.index');
 
-            Route::get('/tagihan/create', [PemilikTagihanController::class, 'create'])
+            Route::get('/tagihan/create', [PengelolaTagihanController::class, 'create'])
                 ->name('tagihan.create');
 
-            Route::post('/tagihan', [PemilikTagihanController::class, 'store'])
+            Route::post('/tagihan', [PengelolaTagihanController::class, 'store'])
                 ->name('tagihan.store');
 
-            Route::get('/tagihan/{id}', [PemilikTagihanController::class, 'show'])
+            Route::get('/tagihan/{id}', [PengelolaTagihanController::class, 'show'])
                 ->name('tagihan.show');
         });
 
         // Pembayaran
         Route::middleware('permission:validate-pembayaran')->group(function () {
-            Route::get('/pembayaran', [PemilikPembayaranController::class, 'index'])
+            Route::get('/pembayaran', [PengelolaPembayaranController::class, 'index'])
                 ->name('pembayaran.index');
 
-            Route::get('/pembayaran/{id}', [PemilikPembayaranController::class, 'show'])
+            Route::get('/pembayaran/{id}', [PengelolaPembayaranController::class, 'show'])
                 ->name('pembayaran.show');
 
-            Route::patch('/pembayaran/{id}/approve', [PemilikPembayaranController::class, 'approve'])
+            Route::patch('/pembayaran/{id}/approve', [PengelolaPembayaranController::class, 'approve'])
                 ->name('pembayaran.approve');
 
-            Route::patch('/pembayaran/{id}/reject', [PemilikPembayaranController::class, 'reject'])
+            Route::patch('/pembayaran/{id}/reject', [PengelolaPembayaranController::class, 'reject'])
                 ->name('pembayaran.reject');
         });
 
         // Keluhan
         Route::middleware('permission:manage-keluhan')->group(function () {
-            Route::get('/keluhan', [PemilikKeluhanController::class, 'index'])
+            Route::get('/keluhan', [PengelolaKeluhanController::class, 'index'])
                 ->name('keluhan.index');
 
-            Route::get('/keluhan/{id}', [PemilikKeluhanController::class, 'show'])
+            Route::get('/keluhan/{id}', [PengelolaKeluhanController::class, 'show'])
                 ->name('keluhan.show');
 
-            Route::put('/keluhan/{id}', [PemilikKeluhanController::class, 'update'])
+            Route::put('/keluhan/{id}', [PengelolaKeluhanController::class, 'update'])
                 ->name('keluhan.update');
         });
 
         // Perpanjangan
         Route::middleware('permission:validate-booking')->group(function () {
-            Route::get('/perpanjangan', [PemilikPerpanjanganController::class, 'index'])
+            Route::get('/perpanjangan', [PengelolaPerpanjanganController::class, 'index'])
                 ->name('perpanjangan.index');
 
-            Route::get('/perpanjangan/{id}', [PemilikPerpanjanganController::class, 'show'])
+            Route::get('/perpanjangan/{id}', [PengelolaPerpanjanganController::class, 'show'])
                 ->name('perpanjangan.show');
 
-            Route::patch('/perpanjangan/{id}/approve', [PemilikPerpanjanganController::class, 'approve'])
+            Route::patch('/perpanjangan/{id}/approve', [PengelolaPerpanjanganController::class, 'approve'])
                 ->name('perpanjangan.approve');
 
-            Route::patch('/perpanjangan/{id}/reject', [PemilikPerpanjanganController::class, 'reject'])
+            Route::patch('/perpanjangan/{id}/reject', [PengelolaPerpanjanganController::class, 'reject'])
                 ->name('perpanjangan.reject');
         });
 
         // Rating
         Route::middleware('permission:manage-rating')->group(function () {
-            Route::get('/rating', [PemilikRatingController::class, 'index'])
+            Route::get('/rating', [PengelolaRatingController::class, 'index'])
                 ->name('rating.index');
 
-            Route::patch('/rating/{id}/approve', [PemilikRatingController::class, 'approve'])
+            Route::patch('/rating/{id}/approve', [PengelolaRatingController::class, 'approve'])
                 ->name('rating.approve');
 
-            Route::patch('/rating/{id}/reject', [PemilikRatingController::class, 'reject'])
+            Route::patch('/rating/{id}/reject', [PengelolaRatingController::class, 'reject'])
                 ->name('rating.reject');
 
-            Route::post('/rating/{id}/balas', [PemilikRatingController::class, 'balas'])
+            Route::post('/rating/{id}/balas', [PengelolaRatingController::class, 'balas'])
                 ->name('rating.balas');
 
-            Route::post('/rating/bulk-action', [PemilikRatingController::class, 'bulkAction'])
+            Route::post('/rating/bulk-action', [PengelolaRatingController::class, 'bulkAction'])
                 ->name('rating.bulk');
 
-            Route::post('/rating/approve-all', [PemilikRatingController::class, 'approveAll'])
+            Route::post('/rating/approve-all', [PengelolaRatingController::class, 'approveAll'])
                 ->name('rating.approve-all');
         });
 
         // Laporan
         Route::middleware('permission:view-laporan-operasional')->group(function () {
-            Route::get('/laporan', [PemilikLaporanController::class, 'index'])
+            Route::get('/laporan', [PengelolaLaporanController::class, 'index'])
                 ->name('laporan.index');
         });
     });
 
-// Alias rute dashboard pengelola
-Route::get('/pengelola/dashboard', fn () => redirect()->route('pemilik.dashboard'))
-    ->middleware(['auth', 'role:pengelola'])
-    ->name('pengelola.dashboard');
+// Backward compatibility: redirect URL lama /pemilik/* ke /pengelola/*
+Route::middleware(['auth', 'role:pengelola'])->group(function () {
+    Route::get('/pemilik', fn () => redirect(route('pengelola.dashboard'), 301));
+    Route::get('/pemilik/{path}', function ($path) {
+        return redirect('/pengelola/'.$path, 301);
+    })->where('path', '.*');
+});
 
 /*
 |--------------------------------------------------------------------------

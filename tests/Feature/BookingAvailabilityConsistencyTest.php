@@ -178,7 +178,7 @@ class BookingAvailabilityConsistencyTest extends TestCase
         $this->kamar->save();
 
         // Pengelola/pemilik mencoba memaksa status kembali menjadi Tersedia
-        $response = $this->actingAs($this->pengelola)->put(route('pemilik.kamar.update', $this->kamar->id), [
+        $response = $this->actingAs($this->pengelola)->put(route('pengelola.kamar.update', $this->kamar->id), [
             'nomor_kamar' => $this->kamar->nomor_kamar,
             'tipe_kamar_id' => $this->tipe->id,
             'lantai' => 1,
@@ -209,7 +209,7 @@ class BookingAvailabilityConsistencyTest extends TestCase
         $this->kamar->status = 'Terisi';
         $this->kamar->save();
 
-        $response = $this->actingAs($this->pengelola)->put(route('pemilik.kamar.update', $this->kamar->id), [
+        $response = $this->actingAs($this->pengelola)->put(route('pengelola.kamar.update', $this->kamar->id), [
             'nomor_kamar' => $this->kamar->nomor_kamar,
             'tipe_kamar_id' => $this->tipe->id,
             'lantai' => 1,
@@ -219,7 +219,7 @@ class BookingAvailabilityConsistencyTest extends TestCase
             'deskripsi' => 'Deskripsi baru yang diperbarui',
         ]);
 
-        $response->assertRedirect(route('pemilik.kamar.index'));
+        $response->assertRedirect(route('pengelola.kamar.index'));
         $response->assertSessionHas('success');
 
         $this->kamar->refresh();

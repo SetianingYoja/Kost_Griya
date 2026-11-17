@@ -53,7 +53,7 @@ class RoleAccessTest extends TestCase
         $response->assertOk();
 
         // Super Admin juga dapat mengakses area operasional
-        $responseOperasional = $this->actingAs($user)->get(route('pemilik.dashboard'));
+        $responseOperasional = $this->actingAs($user)->get(route('pengelola.dashboard'));
         $responseOperasional->assertOk();
     }
 
@@ -78,8 +78,8 @@ class RoleAccessTest extends TestCase
         $this->assertSame('pengelola', User::normalizeRoleSlug('manager'));
         $this->assertSame('pengelola', User::normalizeRoleSlug($role->slug));
 
-        // Pengelola membuka dashboard operasional pemilik yang dialihkan
-        $response = $this->actingAs($pengelola)->get(route('pemilik.dashboard'));
+        // Pengelola membuka dashboard operasional pengelola
+        $response = $this->actingAs($pengelola)->get(route('pengelola.dashboard'));
         $response->assertOk();
 
         // Pengelola dilarang masuk ke panel Super Admin
@@ -116,11 +116,11 @@ class RoleAccessTest extends TestCase
         $responseLaporan->assertOk();
 
         // Pembatasan backend: Pemilik kost DILARANG mengakses dashboard operasional pengelola
-        $blockedOperational = $this->actingAs($pemilikKost)->get(route('pemilik.dashboard'));
+        $blockedOperational = $this->actingAs($pemilikKost)->get(route('pengelola.dashboard'));
         $blockedOperational->assertForbidden();
 
         // Pembatasan backend: Pemilik kost DILARANG mengakses endpoint mutasi kamar create/store
-        $blockedKamarCreate = $this->actingAs($pemilikKost)->get(route('pemilik.kamar.create'));
+        $blockedKamarCreate = $this->actingAs($pemilikKost)->get(route('pengelola.kamar.create'));
         $blockedKamarCreate->assertForbidden();
 
         // Pemilik kost DILARANG masuk ke Super Admin
@@ -153,7 +153,7 @@ class RoleAccessTest extends TestCase
 
         // Terisolasi dari admin, operasional, dan pemilik-kost
         $this->actingAs($penghuni)->get(route('admin.dashboard'))->assertForbidden();
-        $this->actingAs($penghuni)->get(route('pemilik.dashboard'))->assertForbidden();
+        $this->actingAs($penghuni)->get(route('pengelola.dashboard'))->assertForbidden();
         $this->actingAs($penghuni)->get(route('pemilik-kost.dashboard'))->assertForbidden();
     }
 
@@ -182,7 +182,7 @@ class RoleAccessTest extends TestCase
         $this->assertSame(route('admin.dashboard'), $adminRedirect->getTargetUrl());
 
         $pengelolaRedirect = $authController->redirectBasedOnRole($pengelola);
-        $this->assertSame(route('pemilik.dashboard'), $pengelolaRedirect->getTargetUrl());
+        $this->assertSame(route('pengelola.dashboard'), $pengelolaRedirect->getTargetUrl());
 
         $pemilikRedirect = $authController->redirectBasedOnRole($pemilik);
         $this->assertSame(route('pemilik-kost.dashboard'), $pemilikRedirect->getTargetUrl());

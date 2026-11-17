@@ -135,42 +135,42 @@
 
                         <div class="sidebar-heading mt-3">Operasional</div>
                         @if(Auth::user()->hasPermission('view-kamar') || Auth::user()->hasPermission('manage-kamar'))
-                        <a href="{{ route('pemilik.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.kamar.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.kamar.*') ? 'active' : '' }}">
                             <i class="bi bi-door-open"></i> Kamar
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-penghuni'))
-                        <a href="{{ route('pemilik.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.penghuni.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.penghuni.*') ? 'active' : '' }}">
                             <i class="bi bi-people"></i> Penghuni
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pemilik.booking.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.booking.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.booking.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.booking.*') ? 'active' : '' }}">
                             <i class="bi bi-calendar-check"></i> Booking
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-pembayaran'))
-                        <a href="{{ route('pemilik.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.pembayaran.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.pembayaran.*') ? 'active' : '' }}">
                             <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-tagihan'))
-                        <a href="{{ route('pemilik.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.tagihan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.tagihan.*') ? 'active' : '' }}">
                             <i class="bi bi-receipt"></i> Tagihan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pemilik.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.perpanjangan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.perpanjangan.*') ? 'active' : '' }}">
                             <i class="bi bi-arrow-repeat"></i> Perpanjangan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-keluhan'))
-                        <a href="{{ route('pemilik.keluhan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.keluhan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.keluhan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.keluhan.*') ? 'active' : '' }}">
                             <i class="bi bi-exclamation-octagon"></i> Keluhan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-rating'))
-                        <a href="{{ route('pemilik.rating.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.rating.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.rating.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.rating.*') ? 'active' : '' }}">
                             <i class="bi bi-star"></i> Rating
                         </a>
                         @endif
@@ -193,49 +193,49 @@
                         @endif
                     @elseif(Auth::user()->isPengelola())
                         <div class="sidebar-heading">Operasional Kost</div>
-                        <a href="{{ route('pemilik.dashboard') }}" class="sidebar-link {{ request()->routeIs('pemilik.dashboard') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.dashboard') }}" class="sidebar-link {{ request()->routeIs('pengelola.dashboard') ? 'active' : '' }}">
                             <i class="bi bi-speedometer2"></i> Dashboard Pengelola
                         </a>
                         @if(Auth::user()->hasPermission('view-kamar') || Auth::user()->hasPermission('manage-kamar'))
-                        <a href="{{ route('pemilik.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.kamar.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.kamar.*') ? 'active' : '' }}">
                             <i class="bi bi-door-open"></i> Kelola Kamar
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-penghuni'))
-                        <a href="{{ route('pemilik.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.penghuni.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.penghuni.*') ? 'active' : '' }}">
                             <i class="bi bi-people"></i> Data Penghuni
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pemilik.booking.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.booking.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.booking.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.booking.*') ? 'active' : '' }}">
                             <i class="bi bi-calendar-check"></i> Validasi Booking
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-pembayaran'))
-                        <a href="{{ route('pemilik.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.pembayaran.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.pembayaran.*') ? 'active' : '' }}">
                             <i class="bi bi-credit-card"></i> Validasi Pembayaran
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-tagihan'))
-                        <a href="{{ route('pemilik.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.tagihan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.tagihan.*') ? 'active' : '' }}">
                             <i class="bi bi-receipt"></i> Kelola Tagihan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pemilik.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.perpanjangan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.perpanjangan.*') ? 'active' : '' }}">
                             <i class="bi bi-arrow-repeat"></i> Perpanjangan (DP)
                         </a>
                         @endif
-                        <a href="{{ route('pemilik.keluhan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.keluhan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.keluhan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.keluhan.*') ? 'active' : '' }}">
                             <i class="bi bi-exclamation-octagon"></i> Keluhan
                         </a>
                         @if(Auth::user()->hasPermission('manage-rating'))
-                        <a href="{{ route('pemilik.rating.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.rating.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.rating.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.rating.*') ? 'active' : '' }}">
                             <i class="bi bi-star"></i> Rating & Ulasan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('view-laporan-operasional'))
-                        <a href="{{ route('pemilik.laporan.index') }}" class="sidebar-link {{ request()->routeIs('pemilik.laporan.*') ? 'active' : '' }}">
+                        <a href="{{ route('pengelola.laporan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.laporan.*') ? 'active' : '' }}">
                             <i class="bi bi-file-earmark-bar-graph"></i> Laporan Rekap
                         </a>
                         @endif

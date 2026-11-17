@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Permission;
 use App\Models\Rating;
 use App\Models\Role;
 use App\Models\User;
@@ -20,9 +21,9 @@ class RatingModerasiTest extends TestCase
     {
         parent::setUp();
 
-        $rolePemilik = Role::firstOrCreate(
-            ['slug' => 'pemilik-kost'],
-            ['name' => 'Pemilik Kost', 'description' => 'Owner']
+        $rolePengelola = Role::firstOrCreate(
+            ['slug' => 'pengelola'],
+            ['name' => 'Pengelola', 'description' => 'Pengelola operasional kost']
         );
 
         $rolePenghuni = Role::firstOrCreate(
@@ -30,8 +31,14 @@ class RatingModerasiTest extends TestCase
             ['name' => 'Penghuni', 'description' => 'Tenant']
         );
 
+        $perm = Permission::firstOrCreate(
+            ['slug' => 'manage-rating'],
+            ['name' => 'manage-rating', 'module' => 'General', 'description' => 'manage-rating']
+        );
+        $rolePengelola->permissions()->syncWithoutDetaching([$perm->id]);
+
         $this->pemilik = User::factory()->create([
-            'role_id' => $rolePemilik->id,
+            'role_id' => $rolePengelola->id,
             'status' => 'Aktif',
         ]);
 
@@ -43,7 +50,7 @@ class RatingModerasiTest extends TestCase
 
     public function test_pemilik_can_access_rating_index(): void
     {
-        $response = $this->actingAs($this->pemilik)->get(route('pemilik.rating.index'));
+        $response = $this->actingAs($this->pemilik)->get(route('pengelola.rating.index'));
         $response->assertStatus(200);
         $response->assertSee('Rating & Ulasan Kepuasan Penghuni');
         $response->assertSee('Menunggu Validasi');
@@ -59,7 +66,7 @@ class RatingModerasiTest extends TestCase
             'status' => 'Menunggu Validasi',
         ]);
 
-        $response = $this->actingAs($this->pemilik)->patch(route('pemilik.rating.approve', $rating->id));
+        $response = $this->actingAs($this->pemilik)->patch(route('pengelola.rating.approve', $rating->id));
         $response->assertRedirect();
 
         $rating->refresh();
@@ -77,7 +84,7 @@ class RatingModerasiTest extends TestCase
             'status' => 'Menunggu Validasi',
         ]);
 
-        $response = $this->actingAs($this->pemilik)->patch(route('pemilik.rating.reject', $rating->id));
+        $response = $this->actingAs($this->pemilik)->patch(route('pengelola.rating.reject', $rating->id));
         $response->assertRedirect();
 
         $rating->refresh();
@@ -94,7 +101,7 @@ class RatingModerasiTest extends TestCase
             'status' => 'Menunggu Validasi',
         ]);
 
-        $response = $this->actingAs($this->pemilik)->post(route('pemilik.rating.balas', $rating->id), [
+        $response = $this->actingAs($this->pemilik)->post(route('pengelola.rating.balas', $rating->id), [
             'balasan' => 'Terima kasih banyak atas kunjungannya!',
             'setujui_sekaligus' => 1,
         ]);
@@ -124,7 +131,7 @@ class RatingModerasiTest extends TestCase
             'status' => 'Menunggu Validasi',
         ]);
 
-        $response = $this->actingAs($this->pemilik)->post(route('pemilik.rating.bulk'), [
+        $response = $this->actingAs($this->pemilik)->post(route('pengelola.rating.bulk'), [
             'action' => 'approve',
             'rating_ids' => [$rating1->id, $rating2->id],
         ]);
@@ -152,7 +159,7 @@ class RatingModerasiTest extends TestCase
             'status' => 'Menunggu Validasi',
         ]);
 
-        $response = $this->actingAs($this->pemilik)->post(route('pemilik.rating.approve-all'));
+        $response = $this->actingAs($this->pemilik)->post(route('pengelola.rating.approve-all'));
         $response->assertRedirect();
 
         $this->assertSame(0, Rating::where('status', 'Menunggu Validasi')->count());

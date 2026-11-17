@@ -56,8 +56,10 @@
                             $dashboardRoute = route('penghuni.dashboard');
                             if (Auth::user()->isSuperAdmin()) {
                                 $dashboardRoute = route('admin.dashboard');
-                            } elseif (Auth::user()->isPemilik()) {
-                                $dashboardRoute = route('pemilik.dashboard');
+                            } elseif (Auth::user()->isPengelola()) {
+                                $dashboardRoute = route('pengelola.dashboard');
+                            } elseif (Auth::user()->isPemilikKost()) {
+                                $dashboardRoute = route('pemilik-kost.dashboard');
                             }
                         @endphp
                         <div class="dropdown">
