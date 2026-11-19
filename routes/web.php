@@ -20,6 +20,10 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\LaporanSistemController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\PemilikKost\DashboardController as PemilikKostDashboardController;
+use App\Http\Controllers\PemilikKost\KamarController as PemilikKostKamarController;
+use App\Http\Controllers\PemilikKost\LaporanController as PemilikKostLaporanController;
+use App\Http\Controllers\PemilikKost\PenghuniController as PemilikKostPenghuniController;
 use App\Http\Controllers\Pengelola\BookingController as PengelolaBookingController;
 use App\Http\Controllers\Pengelola\DashboardController as PengelolaDashboardController;
 use App\Http\Controllers\Pengelola\KamarController as PengelolaKamarController;
@@ -30,10 +34,6 @@ use App\Http\Controllers\Pengelola\PenghuniController as PengelolaPenghuniContro
 use App\Http\Controllers\Pengelola\PerpanjanganController as PengelolaPerpanjanganController;
 use App\Http\Controllers\Pengelola\RatingController as PengelolaRatingController;
 use App\Http\Controllers\Pengelola\TagihanController as PengelolaTagihanController;
-use App\Http\Controllers\PemilikKost\DashboardController as PemilikKostDashboardController;
-use App\Http\Controllers\PemilikKost\KamarController as PemilikKostKamarController;
-use App\Http\Controllers\PemilikKost\LaporanController as PemilikKostLaporanController;
-use App\Http\Controllers\PemilikKost\PenghuniController as PemilikKostPenghuniController;
 use App\Http\Controllers\Penghuni\BookingController as PenghuniBookingController;
 use App\Http\Controllers\Penghuni\DashboardController as PenghuniDashboardController;
 use App\Http\Controllers\Penghuni\KeluhanController as PenghuniKeluhanController;
@@ -194,6 +194,7 @@ Route::middleware(['auth', 'role:pengelola'])
             Route::post('/kamar', [PengelolaKamarController::class, 'store'])->name('kamar.store');
             Route::get('/kamar/{id}/edit', [PengelolaKamarController::class, 'edit'])->name('kamar.edit');
             Route::put('/kamar/{id}', [PengelolaKamarController::class, 'update'])->name('kamar.update');
+            Route::get('/kamar/{id}/preview-destroy', [PengelolaKamarController::class, 'previewDestroy'])->name('kamar.preview-destroy');
             Route::delete('/kamar/{id}', [PengelolaKamarController::class, 'destroy'])->name('kamar.destroy');
         });
 
@@ -309,6 +310,9 @@ Route::middleware(['auth', 'role:pengelola'])->group(function () {
     Route::get('/pemilik', fn () => redirect(route('pengelola.dashboard'), 301));
     Route::get('/pemilik/{path}', function ($path) {
         return redirect('/pengelola/'.$path, 301);
+    })->where('path', '.*');
+    Route::match(['post', 'patch', 'put', 'delete'], '/pemilik/{path}', function ($path) {
+        return redirect('/pengelola/'.$path, 307);
     })->where('path', '.*');
 });
 

@@ -54,6 +54,10 @@ class RatingModerasiTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Rating & Ulasan Kepuasan Penghuni');
         $response->assertSee('Menunggu Validasi');
+        $response->assertSee('/pengelola/rating/${id}/balas', false);
+        $response->assertSee('/pengelola/rating/${id}/approve', false);
+        $response->assertSee('/pengelola/rating/${id}/reject', false);
+        $response->assertDontSee('/pemilik/rating/', false);
     }
 
     public function test_pemilik_can_approve_rating(): void
@@ -111,6 +115,24 @@ class RatingModerasiTest extends TestCase
         $this->assertSame('Terima kasih banyak atas kunjungannya!', $rating->balasan);
         $this->assertSame('Disetujui', $rating->status);
         $this->assertNotNull($rating->dibalas_pada);
+    }
+
+    public function test_legacy_post_to_pemilik_rating_balas_is_redirected_to_pengelola(): void
+    {
+        $rating = Rating::create([
+            'user_id' => $this->penghuni->id,
+            'jenis_rating' => 'Kost',
+            'skor' => 5,
+            'komentar' => 'Layanan ramah',
+            'status' => 'Menunggu Validasi',
+        ]);
+
+        $response = $this->actingAs($this->pemilik)->post('/pemilik/rating/'.$rating->id.'/balas', [
+            'balasan' => 'Terima kasih!',
+            'setujui_sekaligus' => 1,
+        ]);
+        $response->assertStatus(307);
+        $response->assertRedirect('/pengelola/rating/'.$rating->id.'/balas');
     }
 
     public function test_pemilik_can_bulk_approve_ratings(): void

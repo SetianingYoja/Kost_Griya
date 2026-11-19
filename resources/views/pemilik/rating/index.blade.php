@@ -82,7 +82,7 @@
     </div>
     <div class="d-flex align-items-center gap-2">
         @if($countMenunggu > 0)
-            <form action="{{ route('pemilik.rating.approve-all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin langsung menyetujui seluruh {{ $countMenunggu }} ulasan yang sedang menunggu validasi?');">
+            <form action="{{ route('pengelola.rating.approve-all') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin langsung menyetujui seluruh {{ $countMenunggu }} ulasan yang sedang menunggu validasi?');">
                 @csrf
                 <button type="submit" class="btn btn-sm btn-success d-inline-flex align-items-center gap-2 shadow-sm px-3">
                     <i class="bi bi-check-all fs-6"></i>
@@ -144,22 +144,22 @@
 
 <!-- Tab Filter Moderasi Status -->
 <div class="d-flex flex-wrap gap-2 mb-3 nav-pills-griya">
-    <a href="{{ route('pemilik.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Menunggu Validasi'])) }}" 
+    <a href="{{ route('pengelola.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Menunggu Validasi'])) }}" 
        class="nav-link {{ $status === 'Menunggu Validasi' ? 'active' : '' }}">
         <i class="bi bi-hourglass-split me-1"></i> Menunggu Validasi 
         <span class="badge {{ $status === 'Menunggu Validasi' ? 'bg-light text-primary' : 'bg-warning text-dark' }} ms-1">{{ $countMenunggu }}</span>
     </a>
-    <a href="{{ route('pemilik.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Disetujui'])) }}" 
+    <a href="{{ route('pengelola.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Disetujui'])) }}" 
        class="nav-link {{ $status === 'Disetujui' ? 'active' : '' }}">
         <i class="bi bi-check-circle me-1"></i> Disetujui 
         <span class="badge {{ $status === 'Disetujui' ? 'bg-light text-primary' : 'bg-success' }} ms-1">{{ $countDisetujui }}</span>
     </a>
-    <a href="{{ route('pemilik.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Ditolak'])) }}" 
+    <a href="{{ route('pengelola.rating.index', array_merge(request()->except(['status', 'page']), ['status' => 'Ditolak'])) }}" 
        class="nav-link {{ $status === 'Ditolak' ? 'active' : '' }}">
         <i class="bi bi-x-circle me-1"></i> Ditolak 
         <span class="badge {{ $status === 'Ditolak' ? 'bg-light text-primary' : 'bg-danger' }} ms-1">{{ $countDitolak }}</span>
     </a>
-    <a href="{{ route('pemilik.rating.index', request()->except(['status', 'page'])) }}" 
+    <a href="{{ route('pengelola.rating.index', request()->except(['status', 'page'])) }}" 
        class="nav-link {{ empty($status) ? 'active' : '' }}">
         <i class="bi bi-collection me-1"></i> Semua Ulasan 
         <span class="badge {{ empty($status) ? 'bg-light text-primary' : 'bg-secondary' }} ms-1">{{ $countSemua }}</span>
@@ -168,7 +168,7 @@
 
 <!-- Filter Box -->
 <div class="card-griya p-3 p-md-4 mb-4">
-    <form method="GET" action="{{ route('pemilik.rating.index') }}" class="row g-3 align-items-end">
+    <form method="GET" action="{{ route('pengelola.rating.index') }}" class="row g-3 align-items-end">
         @if($status)
             <input type="hidden" name="status" value="{{ $status }}">
         @endif
@@ -194,13 +194,13 @@
         </div>
         <div class="col-md-2 d-flex gap-2">
             <button type="submit" class="btn btn-primary-griya btn-sm flex-fill">Cari</button>
-            <a href="{{ route('pemilik.rating.index', $status ? ['status' => $status] : []) }}" class="btn btn-outline-secondary btn-sm flex-fill">Reset</a>
+            <a href="{{ route('pengelola.rating.index', $status ? ['status' => $status] : []) }}" class="btn btn-outline-secondary btn-sm flex-fill">Reset</a>
         </div>
     </form>
 </div>
 
 <!-- Bulk Action Form & Toolbar -->
-<form id="bulkForm" action="{{ route('pemilik.rating.bulk') }}" method="POST">
+<form id="bulkForm" action="{{ route('pengelola.rating.bulk') }}" method="POST">
     @csrf
     <input type="hidden" name="action" id="bulkActionInput" value="approve">
 
@@ -469,13 +469,13 @@
         if (action === 'approve') {
             if (confirm(`Setujui ulasan dari ${nama}? Ulasan ini akan langsung tampil di website publik.`)) {
                 const form = document.getElementById('singleApproveForm');
-                form.action = `/pemilik/rating/${id}/approve`;
+                form.action = `/pengelola/rating/${id}/approve`;
                 form.submit();
             }
         } else if (action === 'reject') {
             if (confirm(`Tolak ulasan dari ${nama}? Ulasan tidak akan tampil di website publik.`)) {
                 const form = document.getElementById('singleRejectForm');
-                form.action = `/pemilik/rating/${id}/reject`;
+                form.action = `/pengelola/rating/${id}/reject`;
                 form.submit();
             }
         }
@@ -483,7 +483,7 @@
 
     function openBalasModal(id, nama, komentar, skor, balasan, status) {
         const formBalas = document.getElementById('formBalas');
-        formBalas.action = `/pemilik/rating/${id}/balas`;
+        formBalas.action = `/pengelola/rating/${id}/balas`;
 
         document.getElementById('modalNamaPenghuni').textContent = nama || 'Penghuni';
         document.getElementById('modalKomentarPenghuni').textContent = komentar ? `"${komentar}"` : 'Tidak ada komentar teks.';

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Pengelola;
 use App\Http\Controllers\Controller;
 use App\Models\Kamar;
 use App\Models\TipeKamar;
+use App\Services\KamarCleanupService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KamarController extends Controller
 {
@@ -168,19 +170,37 @@ class KamarController extends Controller
             ->with('success', 'Data kamar '.$kamar->nomor_kamar.' berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function previewDestroy($id, KamarCleanupService $cleanupService)
+    {
+        $kamar = Kamar::with('tipeKamar')->findOrFail($id);
+        $preview = $cleanupService->preview($kamar);
+
+        return response()->json($preview);
+    }
+
+    public function destroy($id, KamarCleanupService $cleanupService)
     {
         $kamar = Kamar::findOrFail($id);
+        $actor = Auth::user();
 
-        // Jangan dihapus jika ada sewa aktif
-        if ($kamar->sewas()->where('status', 'Aktif')->exists()) {
-            return back()->with('error', 'Kamar tidak dapat dihapus karena masih dihuni oleh penyewa aktif.');
-        }
+        $result = $cleanupService->destroyWithRelated($kamar, $actor);
 
-        $nomor = $kamar->nomor_kamar;
-        $kamar->delete();
+        $counts = $result['counts'];
+        $detailMsg = sprintf(
+            'Kamar %s beserta seluruh data terkait berhasil dibersihkan (%d booking, %d sewa, %d tagihan, %d perpanjangan, %d pembayaran, %d keluhan, %d rating, %d foto). Akun penghuni dihapus: %d.',
+            $result['nomor_kamar'],
+            $counts['bookings'],
+            $counts['sewas'],
+            $counts['tagihans'],
+            $counts['perpanjangans'],
+            $counts['pembayarans'],
+            $counts['keluhans'],
+            $counts['ratings'],
+            $counts['fotos'],
+            $counts['users_deleted']
+        );
 
         return redirect()->route('pengelola.kamar.index')
-            ->with('success', 'Kamar '.$nomor.' berhasil dihapus.');
+            ->with('success', $detailMsg);
     }
 }

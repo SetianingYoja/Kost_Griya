@@ -469,13 +469,13 @@
         if (action === 'approve') {
             if (confirm(`Setujui ulasan dari ${nama}? Ulasan ini akan langsung tampil di website publik.`)) {
                 const form = document.getElementById('singleApproveForm');
-                form.action = `/pemilik/rating/${id}/approve`;
+                form.action = `/pengelola/rating/${id}/approve`;
                 form.submit();
             }
         } else if (action === 'reject') {
             if (confirm(`Tolak ulasan dari ${nama}? Ulasan tidak akan tampil di website publik.`)) {
                 const form = document.getElementById('singleRejectForm');
-                form.action = `/pemilik/rating/${id}/reject`;
+                form.action = `/pengelola/rating/${id}/reject`;
                 form.submit();
             }
         }
@@ -483,7 +483,7 @@
 
     function openBalasModal(id, nama, komentar, skor, balasan, status) {
         const formBalas = document.getElementById('formBalas');
-        formBalas.action = `/pemilik/rating/${id}/balas`;
+        formBalas.action = `/pengelola/rating/${id}/balas`;
 
         document.getElementById('modalNamaPenghuni').textContent = nama || 'Penghuni';
         document.getElementById('modalKomentarPenghuni').textContent = komentar ? `"${komentar}"` : 'Tidak ada komentar teks.';
