@@ -57,7 +57,7 @@
                     <tr>
                         <td><strong>{{ $klh->kode_keluhan }}</strong></td>
                         <td>
-                            <strong>{{ $klh->user->name }}</strong>
+                            <strong>{{ $klh->user->name ?? 'Data pengguna tidak tersedia' }}</strong>
                             <div class="text-muted small">Kamar: {{ $klh->kamar->nomor_kamar ?? 'Area Umum' }}</div>
                         </td>
                         <td>

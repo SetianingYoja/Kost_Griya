@@ -66,21 +66,23 @@ class VisitorController extends Controller
             });
         }
 
-        $isDateFilterActive = $request->filled('start_date') && $request->filled('end_date');
+        $isDurationFilterActive = $request->filled('start_date') && $request->filled('duration');
 
         // Filter status statis hanya digunakan jika filter tanggal TIDAK diisi
-        if ($request->filled('status') && ! $isDateFilterActive) {
+        if ($request->filled('status') && ! $isDurationFilterActive) {
             $query->where('status', $request->status);
         }
 
         // Filter by availability period
-        if ($isDateFilterActive) {
+        if ($isDurationFilterActive) {
             $start = \Carbon\Carbon::parse($request->start_date)->startOfDay();
-            $end = \Carbon\Carbon::parse($request->end_date)->endOfDay();
+            $duration = (int) $request->duration;
+            $end = (clone $start)->addMonths($duration)->endOfDay();
 
             if ($start->gt($end)) {
-                return back()->withErrors(['end_date' => 'Tanggal selesai harus setelah tanggal mulai.']);
+                return back()->withErrors(['duration' => 'Durasi harus lebih dari 0 dan tanggal selesai harus setelah tanggal mulai.']);
             }
+
 
             // Kamar yang secara fisik 'Tidak tersedia' (rusak/maintenance) tidak boleh muncul
             $query->where('status', '!=', 'Tidak tersedia');
@@ -125,7 +127,7 @@ class VisitorController extends Controller
         return view('visitor.kamar.index', compact('kamars', 'tipeKamars'));
     }
 
-    public function kamarDetail($id)
+    public function kamarDetail(Request $request, $id)
     {
         $kamar = Kamar::with('tipeKamar')->findOrFail($id);
         $kostInfo = KostInfo::first();
@@ -145,7 +147,40 @@ class VisitorController extends Controller
         $avgKamarRating = $kamarRatings->avg('skor') ?? 0;
         $totalKamarReviews = $kamarRatings->count();
 
-        return view('visitor.kamar.detail', compact('kamar', 'kostInfo', 'kamarLain', 'kamarRatings', 'avgKamarRating', 'totalKamarReviews'));
+        // Determine booking availability based on query parameters
+        $canBook = false;
+        $startDate = $request->query('start_date');
+        $duration = $request->query('duration');
+        if ($startDate && $duration && $kamar->effective_status !== 'Tidak tersedia') {
+            $start = \Carbon\Carbon::parse($startDate)->startOfDay();
+            $end = (clone $start)->addMonths((int) $duration)->endOfDay();
+
+            $leaseOverlap = $kamar->sewas()
+                ->where('status', 'Aktif')
+                ->where('tanggal_mulai', '<=', $end)
+                ->where('tanggal_selesai', '>=', $start)
+                ->exists();
+
+            $bookingOverlap = $kamar->bookings()
+                ->whereIn('status', ['Menunggu Pembayaran', 'Menunggu Validasi', 'Aktif'])
+                ->where(function ($q) {
+                    $q->whereNull('batas_pembayaran')
+                      ->orWhere('batas_pembayaran', '>', \Carbon\Carbon::now());
+                })
+                ->where(function ($q) use ($start, $end) {
+                    $q->where('tanggal_mulai', '<=', $end);
+                    if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite') {
+                        $q->whereRaw("date(tanggal_mulai, '+' || durasi_bulan || ' month') >= ?", [$start->toDateString()]);
+                    } else {
+                        $q->whereRaw('DATE_ADD(tanggal_mulai, INTERVAL durasi_bulan MONTH) >= ?', [$start]);
+                    }
+                })
+                ->exists();
+
+            $canBook = !($leaseOverlap || $bookingOverlap);
+        }
+
+        return view('visitor.kamar.detail', compact('kamar', 'kostInfo', 'kamarLain', 'kamarRatings', 'avgKamarRating', 'totalKamarReviews', 'canBook', 'startDate', 'duration'));
     }
 
     public function ulasanIndex(Request $request)

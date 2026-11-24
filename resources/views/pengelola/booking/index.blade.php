@@ -10,8 +10,6 @@
     </div>
     <div class="btn-group">
         <a href="{{ route('pengelola.booking.index') }}" class="btn btn-sm {{ empty($status) ? 'btn-primary-griya' : 'btn-light border' }}">Semua</a>
-        <a href="{{ route('pengelola.booking.index', ['status' => 'Menunggu Validasi']) }}" class="btn btn-sm {{ $status === 'Menunggu Validasi' ? 'btn-primary-griya' : 'btn-light border' }}">Menunggu Validasi</a>
-        <a href="{{ route('pengelola.booking.index', ['status' => 'Menunggu Pembayaran']) }}" class="btn btn-sm {{ $status === 'Menunggu Pembayaran' ? 'btn-primary-griya' : 'btn-light border' }}">Menunggu Bayar</a>
         <a href="{{ route('pengelola.booking.index', ['status' => 'Selesai']) }}" class="btn btn-sm {{ $status === 'Selesai' ? 'btn-primary-griya' : 'btn-light border' }}">Selesai</a>
     </div>
 </div>
@@ -58,8 +56,8 @@
                     <tr>
                         <td><strong>{{ $bkg->kode_booking }}</strong></td>
                         <td>
-                            <strong>{{ $bkg->user->name }}</strong>
-                            <div class="text-muted small"><i class="bi bi-whatsapp text-success me-1"></i>{{ $bkg->user->phone }}</div>
+                            <strong>{{ $bkg->user->name ?? 'Data pengguna tidak tersedia' }}</strong>
+                            <div class="text-muted small"><i class="bi bi-whatsapp text-success me-1"></i>{{ $bkg->user->phone ?? 'Data pengguna tidak tersedia' }}</div>
                         </td>
                         <td>
                             <strong>{{ $bkg->kamar->nomor_kamar ?? '-' }}</strong>
@@ -70,9 +68,9 @@
                         <td><strong>Rp {{ number_format($bkg->total_harga, 0, ',', '.') }}</strong></td>
                         <td>
                             @if($bkg->status === 'Menunggu Validasi')
-                                <span class="badge bg-warning text-dark">Menunggu Validasi</span>
+                                <span class="badge bg-warning text-dark">Validasi</span>
                             @elseif($bkg->status === 'Menunggu Pembayaran')
-                                <span class="badge bg-primary">Menunggu Bayar</span>
+                                <span class="badge bg-primary">Pembayaran</span>
                             @elseif($bkg->status === 'Selesai')
                                 <span class="badge bg-success">Selesai (Lunas)</span>
                             @elseif($bkg->status === 'Ditolak')

@@ -285,10 +285,10 @@
             </thead>
             <tbody>
                 @forelse($pembayarans as $bayar)
-                    <tr data-transaction-row data-amount="{{ $bayar->nominal }}" data-transaction="{{ $bayar->kode_pembayaran }}" data-occupant="{{ $bayar->user->name }}" data-room="{{ $bayar->booking?->kamar?->nomor_kamar ?? $bayar->perpanjangan?->sewa?->kamar?->nomor_kamar ?? $bayar->tagihan?->sewa?->kamar?->nomor_kamar ?? '' }}" data-type="{{ $bayar->jenis_pembayaran }}" data-paid-date="{{ $bayar->tanggal_bayar?->format('Y-m-d') }}">
+                    <tr data-transaction-row data-amount="{{ $bayar->nominal }}" data-transaction="{{ $bayar->kode_pembayaran }}" data-occupant="{{ $bayar->user->name ?? 'Data pengguna tidak tersedia' }}" data-room="{{ $bayar->booking?->kamar?->nomor_kamar ?? $bayar->perpanjangan?->sewa?->kamar?->nomor_kamar ?? $bayar->tagihan?->sewa?->kamar?->nomor_kamar ?? '' }}" data-type="{{ $bayar->jenis_pembayaran }}" data-paid-date="{{ $bayar->tanggal_bayar?->format('Y-m-d') }}">
                         <td><strong>{{ $bayar->kode_pembayaran }}</strong></td>
                         <td>{{ $bayar->tanggal_bayar ? $bayar->tanggal_bayar->format('d/m/Y') : '-' }}</td>
-                        <td>{{ $bayar->user->name }}</td>
+                        <td>{{ $bayar->user->name ?? 'Data pengguna tidak tersedia' }}</td>
                         <td>
                             @php
                                 $nomorKamar = $bayar->booking?->kamar?->nomor_kamar

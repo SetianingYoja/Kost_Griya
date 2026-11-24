@@ -157,7 +157,6 @@ Route::middleware(['auth', 'role:super-admin'])
         });
 
         // Role & Permission
-        // Role & Permission
         Route::middleware('permission:manage-roles')->group(function () {
             Route::get('/roles-permissions', [RolePermissionController::class, 'index'])
                 ->name('roles.index');
@@ -171,6 +170,77 @@ Route::middleware(['auth', 'role:super-admin'])
             Route::get('/laporan', [LaporanSistemController::class, 'index'])
                 ->name('laporan');
         });
+
+        // Operational routes for Admin (reuse Pengelola controllers)
+        // Kamar
+        Route::middleware('permission:manage-kamar')->group(function () {
+            Route::get('/kamar/create', [PengelolaKamarController::class, 'create'])->name('kamar.create');
+            Route::post('/kamar', [PengelolaKamarController::class, 'store'])->name('kamar.store');
+            Route::get('/kamar/{id}/edit', [PengelolaKamarController::class, 'edit'])->name('kamar.edit');
+            Route::put('/kamar/{id}', [PengelolaKamarController::class, 'update'])->name('kamar.update');
+            Route::get('/kamar/{id}/preview-destroy', [PengelolaKamarController::class, 'previewDestroy'])->name('kamar.preview-destroy');
+            Route::delete('/kamar/{id}', [PengelolaKamarController::class, 'destroy'])->name('kamar.destroy');
+        });
+        Route::middleware('permission:view-kamar')->group(function () {
+            Route::get('/kamar', [PengelolaKamarController::class, 'index'])->name('kamar.index');
+            Route::get('/kamar/{id}', [PengelolaKamarController::class, 'show'])->name('kamar.show');
+        });
+
+        // Booking
+        Route::middleware('permission:validate-booking')->group(function () {
+            Route::get('/booking', [PengelolaBookingController::class, 'index'])->name('booking.index');
+            Route::get('/booking/{id}', [PengelolaBookingController::class, 'show'])->name('booking.show');
+            Route::patch('/booking/{id}/approve', [PengelolaBookingController::class, 'approve'])->name('booking.approve');
+            Route::patch('/booking/{id}/reject', [PengelolaBookingController::class, 'reject'])->name('booking.reject');
+        });
+
+        // Penghuni
+        Route::middleware('permission:manage-penghuni')->group(function () {
+            Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])->name('penghuni.index');
+            Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])->name('penghuni.show');
+        });
+
+        // Tagihan
+        Route::middleware('permission:manage-tagihan')->group(function () {
+            Route::get('/tagihan', [PengelolaTagihanController::class, 'index'])->name('tagihan.index');
+            Route::get('/tagihan/create', [PengelolaTagihanController::class, 'create'])->name('tagihan.create');
+            Route::post('/tagihan', [PengelolaTagihanController::class, 'store'])->name('tagihan.store');
+            Route::get('/tagihan/{id}', [PengelolaTagihanController::class, 'show'])->name('tagihan.show');
+        });
+
+        // Pembayaran
+        Route::middleware('permission:validate-pembayaran')->group(function () {
+            Route::get('/pembayaran', [PengelolaPembayaranController::class, 'index'])->name('pembayaran.index');
+            Route::get('/pembayaran/{id}', [PengelolaPembayaranController::class, 'show'])->name('pembayaran.show');
+            Route::patch('/pembayaran/{id}/approve', [PengelolaPembayaranController::class, 'approve'])->name('pembayaran.approve');
+            Route::patch('/pembayaran/{id}/reject', [PengelolaPembayaranController::class, 'reject'])->name('pembayaran.reject');
+        });
+
+        // Perpanjangan
+        Route::middleware('permission:validate-booking')->group(function () {
+            Route::get('/perpanjangan', [PengelolaPerpanjanganController::class, 'index'])->name('perpanjangan.index');
+            Route::get('/perpanjangan/{id}', [PengelolaPerpanjanganController::class, 'show'])->name('perpanjangan.show');
+            Route::patch('/perpanjangan/{id}/approve', [PengelolaPerpanjanganController::class, 'approve'])->name('perpanjangan.approve');
+            Route::patch('/perpanjangan/{id}/reject', [PengelolaPerpanjanganController::class, 'reject'])->name('perpanjangan.reject');
+        });
+
+        // Keluhan
+        Route::middleware('permission:manage-keluhan')->group(function () {
+            Route::get('/keluhan', [PengelolaKeluhanController::class, 'index'])->name('keluhan.index');
+            Route::get('/keluhan/{id}', [PengelolaKeluhanController::class, 'show'])->name('keluhan.show');
+            Route::put('/keluhan/{id}', [PengelolaKeluhanController::class, 'update'])->name('keluhan.update');
+        });
+
+        // Rating
+        Route::middleware('permission:manage-rating')->group(function () {
+            Route::get('/rating', [PengelolaRatingController::class, 'index'])->name('rating.index');
+            Route::patch('/rating/{id}/approve', [PengelolaRatingController::class, 'approve'])->name('rating.approve');
+            Route::patch('/rating/{id}/reject', [PengelolaRatingController::class, 'reject'])->name('rating.reject');
+            Route::post('/rating/{id}/balas', [PengelolaRatingController::class, 'balas'])->name('rating.balas');
+            Route::post('/rating/bulk-action', [PengelolaRatingController::class, 'bulkAction'])->name('rating.bulk');
+            Route::post('/rating/approve-all', [PengelolaRatingController::class, 'approveAll'])->name('rating.approve-all');
+        });
+
     });
 
 /*
@@ -213,89 +283,49 @@ Route::middleware(['auth', 'role:pengelola'])
 
         // Penghuni
         Route::middleware('permission:manage-penghuni')->group(function () {
-            Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])
-                ->name('penghuni.index');
-
-            Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])
-                ->name('penghuni.show');
+            Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])->name('penghuni.index');
+            Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])->name('penghuni.show');
         });
 
         // Tagihan
         Route::middleware('permission:manage-tagihan')->group(function () {
-            Route::get('/tagihan', [PengelolaTagihanController::class, 'index'])
-                ->name('tagihan.index');
-
-            Route::get('/tagihan/create', [PengelolaTagihanController::class, 'create'])
-                ->name('tagihan.create');
-
-            Route::post('/tagihan', [PengelolaTagihanController::class, 'store'])
-                ->name('tagihan.store');
-
-            Route::get('/tagihan/{id}', [PengelolaTagihanController::class, 'show'])
-                ->name('tagihan.show');
+            Route::get('/tagihan', [PengelolaTagihanController::class, 'index'])->name('tagihan.index');
+            Route::get('/tagihan/create', [PengelolaTagihanController::class, 'create'])->name('tagihan.create');
+            Route::post('/tagihan', [PengelolaTagihanController::class, 'store'])->name('tagihan.store');
+            Route::get('/tagihan/{id}', [PengelolaTagihanController::class, 'show'])->name('tagihan.show');
         });
 
         // Pembayaran
         Route::middleware('permission:validate-pembayaran')->group(function () {
-            Route::get('/pembayaran', [PengelolaPembayaranController::class, 'index'])
-                ->name('pembayaran.index');
-
-            Route::get('/pembayaran/{id}', [PengelolaPembayaranController::class, 'show'])
-                ->name('pembayaran.show');
-
-            Route::patch('/pembayaran/{id}/approve', [PengelolaPembayaranController::class, 'approve'])
-                ->name('pembayaran.approve');
-
-            Route::patch('/pembayaran/{id}/reject', [PengelolaPembayaranController::class, 'reject'])
-                ->name('pembayaran.reject');
-        });
-
-        // Keluhan
-        Route::middleware('permission:manage-keluhan')->group(function () {
-            Route::get('/keluhan', [PengelolaKeluhanController::class, 'index'])
-                ->name('keluhan.index');
-
-            Route::get('/keluhan/{id}', [PengelolaKeluhanController::class, 'show'])
-                ->name('keluhan.show');
-
-            Route::put('/keluhan/{id}', [PengelolaKeluhanController::class, 'update'])
-                ->name('keluhan.update');
+            Route::get('/pembayaran', [PengelolaPembayaranController::class, 'index'])->name('pembayaran.index');
+            Route::get('/pembayaran/{id}', [PengelolaPembayaranController::class, 'show'])->name('pembayaran.show');
+            Route::patch('/pembayaran/{id}/approve', [PengelolaPembayaranController::class, 'approve'])->name('pembayaran.approve');
+            Route::patch('/pembayaran/{id}/reject', [PengelolaPembayaranController::class, 'reject'])->name('pembayaran.reject');
         });
 
         // Perpanjangan
         Route::middleware('permission:validate-booking')->group(function () {
-            Route::get('/perpanjangan', [PengelolaPerpanjanganController::class, 'index'])
-                ->name('perpanjangan.index');
+            Route::get('/perpanjangan', [PengelolaPerpanjanganController::class, 'index'])->name('perpanjangan.index');
+            Route::get('/perpanjangan/{id}', [PengelolaPerpanjanganController::class, 'show'])->name('perpanjangan.show');
+            Route::patch('/perpanjangan/{id}/approve', [PengelolaPerpanjanganController::class, 'approve'])->name('perpanjangan.approve');
+            Route::patch('/perpanjangan/{id}/reject', [PengelolaPerpanjanganController::class, 'reject'])->name('perpanjangan.reject');
+        });
 
-            Route::get('/perpanjangan/{id}', [PengelolaPerpanjanganController::class, 'show'])
-                ->name('perpanjangan.show');
-
-            Route::patch('/perpanjangan/{id}/approve', [PengelolaPerpanjanganController::class, 'approve'])
-                ->name('perpanjangan.approve');
-
-            Route::patch('/perpanjangan/{id}/reject', [PengelolaPerpanjanganController::class, 'reject'])
-                ->name('perpanjangan.reject');
+        // Keluhan
+        Route::middleware('permission:manage-keluhan')->group(function () {
+            Route::get('/keluhan', [PengelolaKeluhanController::class, 'index'])->name('keluhan.index');
+            Route::get('/keluhan/{id}', [PengelolaKeluhanController::class, 'show'])->name('keluhan.show');
+            Route::put('/keluhan/{id}', [PengelolaKeluhanController::class, 'update'])->name('keluhan.update');
         });
 
         // Rating
         Route::middleware('permission:manage-rating')->group(function () {
-            Route::get('/rating', [PengelolaRatingController::class, 'index'])
-                ->name('rating.index');
-
-            Route::patch('/rating/{id}/approve', [PengelolaRatingController::class, 'approve'])
-                ->name('rating.approve');
-
-            Route::patch('/rating/{id}/reject', [PengelolaRatingController::class, 'reject'])
-                ->name('rating.reject');
-
-            Route::post('/rating/{id}/balas', [PengelolaRatingController::class, 'balas'])
-                ->name('rating.balas');
-
-            Route::post('/rating/bulk-action', [PengelolaRatingController::class, 'bulkAction'])
-                ->name('rating.bulk');
-
-            Route::post('/rating/approve-all', [PengelolaRatingController::class, 'approveAll'])
-                ->name('rating.approve-all');
+            Route::get('/rating', [PengelolaRatingController::class, 'index'])->name('rating.index');
+            Route::patch('/rating/{id}/approve', [PengelolaRatingController::class, 'approve'])->name('rating.approve');
+            Route::patch('/rating/{id}/reject', [PengelolaRatingController::class, 'reject'])->name('rating.reject');
+            Route::post('/rating/{id}/balas', [PengelolaRatingController::class, 'balas'])->name('rating.balas');
+            Route::post('/rating/bulk-action', [PengelolaRatingController::class, 'bulkAction'])->name('rating.bulk');
+            Route::post('/rating/approve-all', [PengelolaRatingController::class, 'approveAll'])->name('rating.approve-all');
         });
 
         // Laporan
@@ -319,7 +349,6 @@ Route::middleware(['auth', 'role:pengelola'])->group(function () {
 /*
 |--------------------------------------------------------------------------
 | Pemilik Kost (Read-Only Monitoring & Laporan)
-| Khusus monitoring, tanpa akses aksi mutasi data operasional
 |--------------------------------------------------------------------------
 */
 

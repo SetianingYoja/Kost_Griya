@@ -343,7 +343,7 @@
                     </div>
                 </div>
 
-                @if($kamar->isAvailableForBooking())
+                @if($canBook)
                     @auth
                         @if(Auth::user()->isPenghuni())
                             <form action="{{ route('penghuni.booking.store') }}" method="POST">

@@ -135,32 +135,32 @@
 
                         <div class="sidebar-heading mt-3">Operasional</div>
                         @if(Auth::user()->hasPermission('view-kamar') || Auth::user()->hasPermission('manage-kamar'))
-                        <a href="{{ route('pengelola.kamar.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.kamar.*') ? 'active' : '' }}">
+                        <a href="{{ Auth::user()->hasRole('Pengelola') ? route('pengelola.kamar.index') : route('admin.kamar.index') }}" class="sidebar-link {{ request()->routeIs(Auth::user()->hasRole('Pengelola') ? 'pengelola.kamar.*' : 'admin.kamar.*') ? 'active' : '' }}">
                             <i class="bi bi-door-open"></i> Kamar
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-penghuni'))
-                        <a href="{{ route('pengelola.penghuni.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.penghuni.*') ? 'active' : '' }}">
+                        <a href="{{ Auth::user()->hasRole('Pengelola') ? route('pengelola.penghuni.index') : route('admin.penghuni.index') }}" class="sidebar-link {{ request()->routeIs(Auth::user()->hasRole('Pengelola') ? 'pengelola.penghuni.*' : 'admin.penghuni.*') ? 'active' : '' }}">
                             <i class="bi bi-people"></i> Penghuni
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pengelola.booking.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.booking.*') ? 'active' : '' }}">
+                        <a href="{{ Auth::user()->hasRole('Pengelola') ? route('pengelola.booking.index') : route('admin.booking.index') }}" class="sidebar-link {{ request()->routeIs(Auth::user()->hasRole('Pengelola') ? 'pengelola.booking.*' : 'admin.booking.*') ? 'active' : '' }}">
                             <i class="bi bi-calendar-check"></i> Booking
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-pembayaran'))
-                        <a href="{{ route('pengelola.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.pembayaran.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('admin.pembayaran.*') ? 'active' : '' }}">
                             <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-tagihan'))
-                        <a href="{{ route('pengelola.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.tagihan.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.tagihan.index') }}" class="sidebar-link {{ request()->routeIs('admin.tagihan.*') ? 'active' : '' }}">
                             <i class="bi bi-receipt"></i> Tagihan
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
-                        <a href="{{ route('pengelola.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.perpanjangan.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.perpanjangan.index') }}" class="sidebar-link {{ request()->routeIs('admin.perpanjangan.*') ? 'active' : '' }}">
                             <i class="bi bi-arrow-repeat"></i> Perpanjangan
                         </a>
                         @endif
@@ -208,12 +208,12 @@
                         @endif
                         @if(Auth::user()->hasPermission('validate-booking'))
                         <a href="{{ route('pengelola.booking.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.booking.*') ? 'active' : '' }}">
-                            <i class="bi bi-calendar-check"></i> Validasi Booking
+                            <i class="bi bi-calendar-check"></i> Booking
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('validate-pembayaran'))
                         <a href="{{ route('pengelola.pembayaran.index') }}" class="sidebar-link {{ request()->routeIs('pengelola.pembayaran.*') ? 'active' : '' }}">
-                            <i class="bi bi-credit-card"></i> Validasi Pembayaran
+                            <i class="bi bi-credit-card"></i> Pembayaran
                         </a>
                         @endif
                         @if(Auth::user()->hasPermission('manage-tagihan'))

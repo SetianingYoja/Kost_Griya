@@ -154,8 +154,8 @@
                         @forelse($recentBookings as $bkg)
                             <tr>
                                 <td>
-                                    <strong>{{ $bkg->user->name }}</strong>
-                                    <div class="text-muted small">{{ $bkg->user->phone }}</div>
+                                    <strong>{{ $bkg->user->name ?? 'Data pengguna tidak tersedia' }}</strong>
+                                    <div class="text-muted small">{{ $bkg->user->phone ?? 'Tidak tersedia' }}</div>
                                 </td>
                                 <td>{{ $bkg->kamar->nomor_kamar ?? '-' }}</td>
                                 <td>
@@ -205,7 +205,7 @@
                         @forelse($recentPembayarans as $byr)
                             <tr>
                                 <td>
-                                    <strong>{{ $byr->user->name }}</strong>
+                                    <strong>{{ $byr->user->name ?? 'Data pengguna tidak tersedia' }}</strong>
                                     <div class="text-muted small">{{ $byr->jenis_pembayaran }}</div>
                                 </td>
                                 <td><strong>Rp {{ number_format($byr->nominal, 0, ',', '.') }}</strong></td>
@@ -253,7 +253,7 @@
                     <tbody>
                         @forelse($recentKeluhans as $klh)
                             <tr>
-                                <td>{{ $klh->user->name }}</td>
+                                <td>{{ $klh->user->name ?? 'Data pengguna tidak tersedia' }}</td>
                                 <td>
                                     <strong>{{ $klh->judul }}</strong>
                                 </td>
@@ -286,7 +286,7 @@
                 @forelse($recentRatings as $rtg)
                     <div class="list-group-item px-0 py-2 border-0 border-bottom">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <strong class="text-secondary">{{ $rtg->user->name }} ({{ $rtg->jenis_rating }})</strong>
+                            <strong class="text-secondary">{{ $rtg->user->name ?? 'Data pengguna tidak tersedia' }} ({{ $rtg->jenis_rating }})</strong>
                             <div class="text-warning">
                                 @for($i=1;$i<=5;$i++)
                                     <i class="bi bi-star{{ $i <= $rtg->skor ? '-fill' : '' }}"></i>

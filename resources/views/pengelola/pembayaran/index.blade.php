@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Validasi Pembayaran Masuk')
+@section('title', 'Riwayat Pembayaran')
 
 @section('content')
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
@@ -8,12 +8,7 @@
         <h3 class="fw-bold text-secondary mb-1">Validasi Pembayaran & Bukti Transfer</h3>
         <p class="text-muted small mb-0">Verifikasi mutasi transfer untuk booking kamar awal, tagihan bulanan, dan DP perpanjangan</p>
     </div>
-    <div class="btn-group">
-        <a href="{{ route('pengelola.pembayaran.index') }}" class="btn btn-sm {{ empty($status) ? 'btn-primary-griya' : 'btn-light border' }}">Semua</a>
-        <a href="{{ route('pengelola.pembayaran.index', ['status' => 'Menunggu Validasi']) }}" class="btn btn-sm {{ $status === 'Menunggu Validasi' ? 'btn-primary-griya' : 'btn-light border' }}">Perlu Validasi</a>
-        <a href="{{ route('pengelola.pembayaran.index', ['status' => 'Lunas']) }}" class="btn btn-sm {{ $status === 'Lunas' ? 'btn-primary-griya' : 'btn-light border' }}">Lunas</a>
-        <a href="{{ route('pengelola.pembayaran.index', ['status' => 'Ditolak']) }}" class="btn btn-sm {{ $status === 'Ditolak' ? 'btn-primary-griya' : 'btn-light border' }}">Ditolak</a>
-    </div>
+
 </div>
 
 <div class="card-griya p-4 mb-4">
@@ -58,8 +53,8 @@
                     <tr>
                         <td><strong>{{ $byr->kode_pembayaran }}</strong></td>
                         <td>
-                            <strong>{{ $byr->user->name }}</strong>
-                            <div class="text-muted small">{{ $byr->user->phone }}</div>
+                            <strong>{{ $byr->user->name ?? 'Data pengguna tidak tersedia' }}</strong>
+                            <div class="text-muted small">{{ $byr->user->phone ?? 'Data pengguna tidak tersedia' }}</div>
                         </td>
                         <td><span class="badge bg-light text-primary border">{{ $byr->jenis_pembayaran }}</span></td>
                         <td>{{ $byr->tanggal_bayar ? $byr->tanggal_bayar->format('d/m/Y') : '-' }}</td>
@@ -79,7 +74,7 @@
                         </td>
                         <td>
                             <a href="{{ route('pengelola.pembayaran.show', $byr->id) }}" class="btn btn-sm btn-outline-griya py-1 px-2">
-                                <i class="bi bi-shield-check"></i> Validasi
+                                <i class="bi bi-eye"></i> Detail
                             </a>
                         </td>
                     </tr>

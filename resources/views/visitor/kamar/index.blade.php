@@ -59,9 +59,13 @@
                     <input type="date" name="start_date" class="form-control bg-light" value="{{ request('start_date') }}">
                 </div>
                 <div class="filter-item">
-                    <label class="form-label small fw-semibold text-secondary">Tanggal Selesai Sewa</label>
-                    <input type="date" name="end_date" class="form-control bg-light @error('end_date') is-invalid @enderror" value="{{ request('end_date') }}">
-                    @error('end_date')
+                    <label class="form-label small fw-semibold text-secondary">Durasi Sewa (Bulan)</label>
+                    <select name="duration" class="form-select bg-light @error('duration') is-invalid @enderror">
+                        @for ($i = 1; $i <= 12; $i++)
+                            <option value="{{ $i }}" {{ request('duration') == $i ? 'selected' : '' }}>{{ $i }} bulan</option>
+                        @endfor
+                    </select>
+                    @error('duration')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -71,7 +75,7 @@
                 <button type="submit" class="btn btn-primary-griya flex-grow-1">
                     <i class="bi bi-funnel me-1"></i> Terapkan Filter
                 </button>
-                @if(request()->anyFilled(['q', 'tipe', 'status', 'lantai', 'start_date', 'end_date']))
+                @if(request()->anyFilled(['q', 'tipe', 'status', 'lantai', 'start_date', 'duration']))
                     <a href="{{ route('kamar.index') }}" class="btn btn-light border text-muted">
                         <i class="bi bi-arrow-counterclockwise"></i> Reset
                     </a>
@@ -88,7 +92,7 @@
                     <div class="card-griya h-100 d-flex flex-column">
                         <div class="room-img-wrapper">
                             <img src="{{ $kamar->foto_url }}" alt="{{ $kamar->nomor_kamar }}">
-                            @if(request()->filled('start_date') && request()->filled('end_date') && ! $errors->has('end_date'))
+                            @if(request()->filled('start_date') && request()->filled('duration') && ! $errors->has('duration'))
                                 <span class="room-badge-status status-tersedia">
                                     <i class="bi bi-calendar-check-fill me-1"></i> Tersedia
                                 </span>
@@ -121,7 +125,7 @@
                                     <span class="price-tag">Rp {{ number_format($kamar->harga, 0, ',', '.') }}</span>
                                     <span class="small text-muted">/bln</span>
                                 </div>
-                                <a href="{{ route('kamar.detail', $kamar->id) }}" class="btn btn-primary-griya btn-sm px-3">
+                                <a href="{{ route('kamar.detail', $kamar->id) }}?start_date={{ request('start_date') }}&duration={{ request('duration') }}" class="btn btn-primary-griya btn-sm px-3">
                                     Detail Kamar <i class="bi bi-chevron-right ms-1"></i>
                                 </a>
                             </div>
