@@ -9,11 +9,24 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
 
+/**
+ * User model.
+ */
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * Send the password reset notification.
+     * Uses the custom named route 'password.reset' with token and email query.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $url = route('pengelola.password.reset', ['token' => $token, 'email' => $this->email]);
+        $this->notify(new ResetPasswordNotification($token, $url));
+    }
 
     protected $fillable = [
         'role_id',
@@ -111,25 +124,17 @@ class User extends Authenticatable
         return $this->role && self::normalizeRoleSlug($this->role->slug) === 'super-admin';
     }
 
-    /**
-     * Cek apakah user adalah Pengelola (mengelola operasional kost).
-     */
     public function isPengelola(): bool
     {
         return $this->role && self::normalizeRoleSlug($this->role->slug) === 'pengelola';
     }
 
-    /**
-     * Cek apakah user adalah Pemilik Kost (read-only, monitoring & laporan).
-     */
     public function isPemilikKost(): bool
     {
         return $this->role && self::normalizeRoleSlug($this->role->slug) === 'pemilik-kost';
     }
 
-    /**
-     * @deprecated Gunakan isPemilikKost(). Dipertahankan untuk backward compatibility.
-     */
+    /** @deprecated Gunakan isPemilikKost(). Dipertahankan untuk backward compatibility. */
     public function isPemilik(): bool
     {
         return $this->isPemilikKost();

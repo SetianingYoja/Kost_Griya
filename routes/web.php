@@ -171,8 +171,8 @@ Route::middleware(['auth', 'role:super-admin'])
                 ->name('laporan');
         });
 
-        // Operational routes for Admin (reuse Pengelola controllers)
-        // Kamar
+
+
         Route::middleware('permission:manage-kamar')->group(function () {
             Route::get('/kamar/create', [PengelolaKamarController::class, 'create'])->name('kamar.create');
             Route::post('/kamar', [PengelolaKamarController::class, 'store'])->name('kamar.store');
@@ -197,6 +197,14 @@ Route::middleware(['auth', 'role:super-admin'])
         // Penghuni
         Route::middleware('permission:manage-penghuni')->group(function () {
             Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])->name('penghuni.index');
+            Route::get('/penghuni/{id}/edit', [PengelolaPenghuniController::class, 'edit'])->name('penghuni.edit');
+            Route::put('/penghuni/{id}', [PengelolaPenghuniController::class, 'update'])->name('penghuni.update');
+            // Reset password routes
+            Route::get('/penghuni/{id}/password/reset', [PengelolaPenghuniController::class, 'showResetForm'])->name('penghuni.password.request');
+            Route::post('/penghuni/{id}/password/email', [PengelolaPenghuniController::class, 'sendResetLink'])->name('penghuni.password.email');
+            Route::post('/penghuni/{id}/password/reset', [PengelolaPenghuniController::class, 'resetPassword'])->name('penghuni.password.update');
+            Route::get('/penghuni/password/reset/{token}', [PengelolaPenghuniController::class, 'showResetFormToken'])->name('password.reset');
+
             Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])->name('penghuni.show');
         });
 
@@ -284,6 +292,14 @@ Route::middleware(['auth', 'role:pengelola'])
         // Penghuni
         Route::middleware('permission:manage-penghuni')->group(function () {
             Route::get('/penghuni', [PengelolaPenghuniController::class, 'index'])->name('penghuni.index');
+            Route::get('/penghuni/{id}/edit', [PengelolaPenghuniController::class, 'edit'])->name('penghuni.edit');
+            Route::put('/penghuni/{id}', [PengelolaPenghuniController::class, 'update'])->name('penghuni.update');
+            // Reset password routes
+            Route::get('/penghuni/{id}/password/reset', [PengelolaPenghuniController::class, 'showResetForm'])->name('penghuni.password.request');
+            Route::post('/penghuni/{id}/password/email', [PengelolaPenghuniController::class, 'sendResetLink'])->name('penghuni.password.email');
+            Route::post('/penghuni/{id}/password/reset', [PengelolaPenghuniController::class, 'resetPassword'])->name('penghuni.password.update');
+            Route::get('/penghuni/password/reset/{token}', [PengelolaPenghuniController::class, 'showResetFormToken'])->name('password.reset');
+
             Route::get('/penghuni/{id}', [PengelolaPenghuniController::class, 'show'])->name('penghuni.show');
         });
 

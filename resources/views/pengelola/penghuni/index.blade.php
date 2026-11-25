@@ -57,9 +57,17 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('pengelola.penghuni.show', $penghuni->id) }}" class="btn btn-sm btn-outline-griya">
-                                <i class="bi bi-eye"></i> Profil & Arsip
-                            </a>
+                            <div style="display:inline-flex; gap:5px;">
+                                <a href="{{ route('pengelola.penghuni.show', $penghuni->id) }}" class="btn btn-outline-griya" data-bs-toggle="tooltip" title="Profil &amp; Arsip" style="width:32px;height:32px;min-width:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px;">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ route('pengelola.penghuni.edit', $penghuni->id) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="Edit Penghuni" style="width:32px;height:32px;min-width:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px;">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ route('pengelola.penghuni.password.request', $penghuni->id) }}" class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Reset Password" style="width:32px;height:32px;min-width:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px;">
+                                    <i class="bi bi-key"></i>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 @empty
